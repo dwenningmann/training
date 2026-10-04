@@ -1,0 +1,3058 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#041E42">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Workout">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Dallas Cowboys Workout Tracker</title>
+  <style>
+    :root {
+      --cowboys-navy: #003594;
+      --cowboys-silver: #869397;
+      --cowboys-dark: #041E42;
+      --cowboys-light-silver: #C0C0C0;
+      --bg-dark: #0b111e;
+      --card-bg: #141f33;
+      --card-header: #1b2944;
+      --text-main: #f0f3f8;
+      --text-muted: #a6b4c9;
+      --accent: #0077ff;
+      --success: #28a745;
+      --danger: #e5534b;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      padding-bottom: 60px;
+    }
+
+    /* ===== Auth-Zustände ===== */
+    body.auth-loading header,
+    body.auth-loading .nav-tabs,
+    body.auth-loading main,
+    body.signed-out header,
+    body.signed-out .nav-tabs,
+    body.signed-out main {
+      display: none;
+    }
+
+    #authScreen,
+    #authLoading {
+      display: none;
+    }
+
+    body.signed-out #authScreen {
+      display: flex;
+    }
+
+    body.auth-loading #authLoading {
+      display: flex;
+    }
+
+    .auth-wrap {
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card-bg);
+      border: 1px solid rgba(134, 147, 151, 0.3);
+      border-top: 4px solid var(--cowboys-silver);
+      border-radius: 12px;
+      padding: 24px 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .auth-card h1 {
+      font-size: 1.2rem;
+      text-align: center;
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .auth-card .auth-sub {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .auth-card label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .auth-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(134, 147, 151, 0.35);
+      color: var(--white);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 1rem;
+      margin-bottom: 14px;
+    }
+
+    .auth-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 6px rgba(0, 119, 255, 0.5);
+    }
+
+    .auth-submit {
+      width: 100%;
+      padding: 11px;
+      font-size: 0.95rem;
+      background: var(--cowboys-navy);
+      color: var(--white);
+      border-color: var(--accent);
+    }
+
+    .auth-submit:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .auth-link {
+      display: block;
+      margin: 14px auto 0;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: underline;
+    }
+
+    .auth-link:hover {
+      background: none;
+      color: var(--white);
+    }
+
+    .auth-msg {
+      min-height: 1.2em;
+      font-size: 0.82rem;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .auth-msg.error { color: var(--danger); }
+    .auth-msg.ok { color: #75d98d; }
+
+    /* Header & Timer */
+    header {
+      background: linear-gradient(135deg, var(--cowboys-dark), var(--cowboys-navy));
+      border-bottom: 3px solid var(--cowboys-silver);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      padding: 12px 16px;
+    }
+
+    .header-content {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .title-row h1 {
+      font-size: 1.2rem;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .header-actions button {
+      font-size: 0.75rem;
+      background: transparent;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .user-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .user-email {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .sync-status {
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .sync-status.saving .sync-dot { background: #f0ad4e; }
+    .sync-status.offline .sync-dot { background: var(--cowboys-silver); }
+    .sync-status.error .sync-dot { background: var(--danger); }
+
+    .star {
+      color: var(--cowboys-silver);
+      font-size: 1.3rem;
+    }
+
+    .timer-container {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(134, 147, 151, 0.3);
+    }
+
+    .timer-display {
+      font-size: 1.35rem;
+      font-weight: 700;
+      min-width: 65px;
+      color: var(--white);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid var(--cowboys-silver);
+      background: var(--card-bg);
+      color: var(--text-main);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: var(--cowboys-silver);
+      color: var(--cowboys-dark);
+    }
+
+    .btn-preset {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-timer-action {
+      background: var(--cowboys-navy);
+      color: var(--white);
+      border-color: var(--accent);
+    }
+
+    .btn-timer-action:hover {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    /* Tab Navigation */
+    .nav-tabs {
+      display: flex;
+      overflow-x: auto;
+      max-width: 900px;
+      margin: 16px auto 0;
+      padding: 0 12px;
+      gap: 8px;
+      scrollbar-width: none;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      white-space: nowrap;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--card-header);
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      font-size: 0.9rem;
+    }
+
+    .tab-btn.active {
+      background: var(--cowboys-navy);
+      color: var(--white);
+      border-color: var(--cowboys-silver);
+      box-shadow: 0 0 10px rgba(0, 53, 148, 0.5);
+    }
+
+    /* Content Area */
+    main {
+      max-width: 900px;
+      margin: 16px auto;
+      padding: 0 12px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .day-header {
+      background: linear-gradient(90deg, var(--card-header), transparent);
+      padding: 12px 14px;
+      border-left: 4px solid var(--cowboys-silver);
+      margin-bottom: 16px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .day-header h2 {
+      font-size: 1.25rem;
+      color: var(--white);
+    }
+
+    .day-header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Cards & Akkordeon */
+    .exercise-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(134, 147, 151, 0.2);
+      border-radius: 10px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .exercise-header {
+      background: var(--card-header);
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(134, 147, 151, 0.2);
+    }
+
+    .exercise-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .exercise-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(0, 53, 148, 0.4);
+      border: 1px solid rgba(134, 147, 151, 0.3);
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .badge-tut {
+      background: rgba(40, 167, 69, 0.2);
+      border-color: rgba(40, 167, 69, 0.4);
+      color: #75d98d;
+    }
+
+    .badge-pause {
+      background: rgba(0, 119, 255, 0.2);
+      border-color: rgba(0, 119, 255, 0.4);
+      color: #8cc3ff;
+    }
+
+    .exercise-body {
+      padding: 12px 14px;
+    }
+
+    /* Akkordeon für Hinweise */
+    details.exercise-accordion {
+      margin-bottom: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(134, 147, 151, 0.2);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    details.exercise-accordion summary {
+      padding: 7px 10px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    details.exercise-accordion summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.exercise-accordion summary::after {
+      content: '▾';
+      font-size: 0.85rem;
+      transition: transform 0.2s;
+    }
+
+    details.exercise-accordion[open] summary::after {
+      transform: rotate(180deg);
+    }
+
+    .exercise-notes {
+      font-size: 0.82rem;
+      color: #d1d9e6;
+      padding: 8px 10px;
+      border-top: 1px solid rgba(134, 147, 151, 0.15);
+      line-height: 1.4;
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    /* Feste Tracking-Maske */
+    .sets-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    .sets-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      text-align: center;
+      padding-bottom: 8px;
+    }
+
+    .sets-table td {
+      padding: 4px 2px;
+      text-align: center;
+    }
+
+    .sets-table td.set-number {
+      font-weight: 700;
+      color: var(--cowboys-silver);
+      width: 12%;
+    }
+
+    .input-field {
+      width: 92%;
+      max-width: 105px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(134, 147, 151, 0.35);
+      color: var(--white);
+      border-radius: 6px;
+      padding: 7px 4px;
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 6px rgba(0, 119, 255, 0.5);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .check-cell {
+      width: 16%;
+    }
+
+    .check-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(134, 147, 151, 0.3);
+      color: var(--text-muted);
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .check-btn.completed {
+      background: var(--success);
+      color: var(--white);
+      border-color: var(--success);
+    }
+
+    /* Info Cards */
+    .info-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 14px;
+      border-left: 4px solid var(--cowboys-silver);
+      border-top: 1px solid rgba(134, 147, 151, 0.2);
+    }
+
+    .info-card h3 {
+      font-size: 1.05rem;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .info-card p, .info-card ul {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .info-card ul {
+      padding-left: 20px;
+      margin-top: 6px;
+    }
+
+    .info-card li {
+      margin-bottom: 6px;
+    }
+
+    .highlight {
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    /* ===== Geistwerte vom letzten Training ===== */
+    .input-field.has-ghost::placeholder {
+      color: rgba(166, 180, 201, 0.6);
+      font-style: italic;
+    }
+
+    .input-field.trend-up {
+      border-color: var(--success);
+      color: #8ff0a4;
+      background: rgba(40, 167, 69, 0.15);
+    }
+
+    .input-field.trend-down {
+      border-color: var(--danger);
+      color: #ff9a94;
+      background: rgba(229, 83, 75, 0.15);
+    }
+
+    .input-field.trend-same {
+      border-color: rgba(166, 180, 201, 0.7);
+    }
+
+    .ghost-legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .ghost-legend span::before {
+      content: '';
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      margin-right: 5px;
+      vertical-align: -1px;
+    }
+
+    .ghost-legend .lg-up::before { background: var(--success); }
+    .ghost-legend .lg-down::before { background: var(--danger); }
+    .ghost-legend .lg-ghost::before { background: rgba(166, 180, 201, 0.6); }
+
+    [hidden] { display: none !important; }
+
+    header { padding-top: max(12px, env(safe-area-inset-top)); }
+
+    @media (max-width: 430px) {
+      .title-row h1 { font-size: 1rem; }
+      .header-actions button { padding: 5px 7px; }
+    }
+
+    .auto-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .auto-toggle input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+    /* Tages-Fortschritt */
+    .day-progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .dp-bar {
+      flex: 1;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .dp-bar span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .dp-text {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .day-header.day-done { border-left-color: var(--success); }
+    .day-header.day-done .dp-bar span { background: var(--success); }
+    .day-header.day-done .dp-text { color: #75d98d; }
+    .tab-btn.done::after { content: ' ✓'; color: #75d98d; }
+
+    /* Übungsname klickbar -> Verlauf */
+    .exercise-name.clickable { cursor: pointer; }
+    .exercise-name .chart-icon { font-size: 0.85rem; opacity: 0.7; margin-left: 4px; }
+
+    .badge-pr {
+      background: rgba(255, 193, 7, 0.2);
+      border-color: rgba(255, 193, 7, 0.6);
+      color: #ffd54f;
+    }
+
+    .prog-hint {
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: rgba(40, 167, 69, 0.15);
+      border: 1px solid rgba(40, 167, 69, 0.45);
+      color: #c9f5d3;
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .prog-hint b { color: var(--white); }
+
+    .copy-last-btn {
+      margin-top: 8px;
+      width: 100%;
+      padding: 8px;
+      font-size: 0.82rem;
+      background: rgba(0, 119, 255, 0.12);
+      border: 1px solid rgba(0, 119, 255, 0.45);
+      color: #8cc3ff;
+    }
+
+    .copy-last-btn:hover { background: rgba(0, 119, 255, 0.3); color: var(--white); }
+
+    .ex-note {
+      width: 100%;
+      margin-top: 10px;
+      resize: none;
+      min-height: 34px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px dashed rgba(134, 147, 151, 0.35);
+      color: var(--text-main);
+      border-radius: 6px;
+      padding: 7px 9px;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      overflow: hidden;
+    }
+
+    .ex-note:focus { outline: none; border-style: solid; border-color: var(--accent); }
+
+    /* Stats */
+    .muted-small { font-size: 0.78rem !important; color: var(--text-muted); margin-bottom: 8px; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    @media (min-width: 640px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .stat-tile {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(134, 147, 151, 0.2);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--white);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .stat-delta { font-size: 0.78rem; font-weight: 700; margin-top: 2px; }
+    .stat-delta.up { color: #75d98d; }
+    .stat-delta.down { color: #ff9a94; }
+
+    .chart { width: 100%; height: auto; display: block; margin-top: 6px; }
+    .chart text { font-family: inherit; }
+    .chart-caption { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+
+    .pr-list, .body-list { list-style: none; padding: 0 !important; margin-top: 4px; }
+
+    .pr-list li, .body-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 2px;
+      border-bottom: 1px solid rgba(134, 147, 151, 0.15);
+      font-size: 0.86rem;
+      color: var(--text-main);
+    }
+
+    .pr-list li { cursor: pointer; }
+    .pr-list .pr-val { font-weight: 700; white-space: nowrap; color: var(--white); }
+    .pr-day { font-size: 0.72rem; color: var(--text-muted); }
+
+    .body-form {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      align-items: end;
+      margin: 6px 0 10px;
+    }
+
+    .body-form label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: flex; flex-direction: column; gap: 4px; }
+    .body-form .input-field { width: 100%; max-width: none; }
+    .body-form button { grid-column: 1 / -1; padding: 9px; }
+
+    .body-list button {
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      background: transparent;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .hist-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 10px; }
+    .hist-table th { text-align: left; color: var(--text-muted); font-weight: 600; padding: 4px 4px 6px; }
+    .hist-table td { padding: 6px 4px; border-top: 1px solid rgba(134, 147, 151, 0.15); }
+    .hist-table tr.is-current td { color: #8cc3ff; font-weight: 700; }
+
+    /* Modal */
+    #modal { position: fixed; inset: 0; z-index: 900; display: none; }
+    body.modal-open #modal { display: block; }
+    body.modal-open { overflow: hidden; }
+    .modal-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.7); }
+
+    .modal-card {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(560px, calc(100% - 24px));
+      max-height: calc(100% - 40px);
+      overflow-y: auto;
+      background: var(--card-bg);
+      border: 1px solid rgba(134, 147, 151, 0.35);
+      border-top: 4px solid var(--cowboys-silver);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .modal-head h3 { font-size: 1.05rem; color: var(--white); }
+    .modal-x { background: transparent; border-color: rgba(255, 255, 255, 0.2); padding: 4px 9px; }
+    .modal-body { margin-top: 10px; font-size: 0.88rem; color: var(--text-main); line-height: 1.45; }
+    .modal-body p { color: var(--text-muted); }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
+    .modal-actions button { padding: 9px 14px; }
+    .modal-actions .btn-primary { background: var(--success); border-color: var(--success); color: var(--white); }
+
+    /* Toast + Konfetti */
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: max(24px, env(safe-area-inset-bottom));
+      transform: translate(-50%, 20px);
+      z-index: 1100;
+      background: #1f2d4a;
+      color: var(--white);
+      border: 1px solid rgba(255, 213, 79, 0.7);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      max-width: calc(100% - 32px);
+      text-align: center;
+    }
+
+    #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    .confetti {
+      position: fixed;
+      top: 40%;
+      left: 50%;
+      z-index: 1101;
+      font-size: 1.4rem;
+      pointer-events: none;
+      animation: confettiFly 1.3s ease-out forwards;
+    }
+
+    @keyframes confettiFly {
+      0% { transform: translate(-50%, 0) scale(0.6); opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--dx)), var(--dy)) rotate(var(--rot)) scale(1); opacity: 0; }
+    }
+
+    /* ===== Vollbild-Pausentimer ===== */
+    #restOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      background: var(--cowboys-dark);
+      color: var(--white);
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      --rest-color: #0a5bd6;
+    }
+
+    body.rest-active #restOverlay { display: block; }
+    body.rest-active { overflow: hidden; }
+
+    /* Füllstand läuft von oben nach unten leer – aus der Ferne erkennbar */
+    .rest-fill {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 100%;
+      background: var(--rest-color);
+      transition: height 0.25s linear, background-color 0.4s ease;
+    }
+
+    .rest-frame {
+      position: absolute;
+      inset: 0;
+      border: 10px solid rgba(255, 255, 255, 0.85);
+      animation: restPulse 2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes restPulse {
+      0%, 100% { opacity: 0.25; }
+      50% { opacity: 1; }
+    }
+
+    .rest-inner {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+      text-align: center;
+      gap: 2vh;
+    }
+
+    .rest-label {
+      font-size: clamp(1.4rem, 7vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: 0.35em;
+      padding-left: 0.35em;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .rest-time {
+      font-size: min(34vw, 42vh);
+      font-weight: 900;
+      line-height: 0.95;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+      text-shadow: 0 6px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    .rest-quote {
+      max-width: 900px;
+      font-size: clamp(1rem, min(4.6vw, 5.5vh), 2.2rem);
+      font-weight: 700;
+      line-height: 1.3;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      min-height: 2.6em;
+    }
+
+    .rest-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 2vh;
+    }
+
+    .rest-controls button {
+      font-size: 1.05rem;
+      padding: 12px 18px;
+      min-width: 72px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--white);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .rest-controls button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: var(--white);
+    }
+
+    .rest-controls .rest-end {
+      border-color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Letzte 10 Sekunden: Orange + schnelleres Pulsieren */
+    #restOverlay.final { --rest-color: #f28c00; background: #8a4500; }
+    #restOverlay.final .rest-frame { animation-duration: 0.6s; }
+
+    /* Pausiert: grau */
+    #restOverlay.paused { --rest-color: #59656b; background: #2a3236; }
+    #restOverlay.paused .rest-frame { animation: none; opacity: 0.3; }
+
+    /* Fertig: Grün, Blinken */
+    #restOverlay.done { --rest-color: var(--success); }
+    #restOverlay.done .rest-fill { height: 100% !important; animation: doneFlash 0.5s steps(2) infinite; }
+
+    @keyframes doneFlash {
+      0% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rest-frame, #restOverlay.done .rest-fill { animation: none; }
+    }
+  </style>
+</head>
+<body class="auth-loading">
+
+  <!-- Ladezustand bis Firebase den Login-Status kennt -->
+  <div id="authLoading" class="auth-wrap">
+    <p style="color: var(--text-muted);">★ Lade …</p>
+  </div>
+
+  <!-- Login -->
+  <div id="authScreen" class="auth-wrap">
+    <form class="auth-card" id="loginForm" novalidate>
+      <h1><span class="star">★</span> WORKOUT TRACKER <span class="star">★</span></h1>
+      <p class="auth-sub">Bitte melde dich an</p>
+      <label for="loginEmail">E-Mail</label>
+      <input class="auth-input" type="email" id="loginEmail" autocomplete="username" required>
+      <label for="loginPassword">Passwort</label>
+      <input class="auth-input" type="password" id="loginPassword" autocomplete="current-password" required>
+      <div class="auth-msg" id="authMsg" role="status"></div>
+      <button type="submit" class="auth-submit" id="loginBtn">Anmelden</button>
+      <button type="button" class="auth-link" id="forgotBtn">Passwort vergessen?</button>
+      <button type="button" class="auth-link" id="toggleModeBtn" style="margin-top:6px;">Noch kein Konto? Registrieren</button>
+    </form>
+  </div>
+
+  <!-- Header mit Cowboys Design & Timer -->
+  <header>
+    <div class="header-content">
+      <div class="title-row">
+        <h1><span class="star">★</span> WORKOUT TRACKER <span class="star">★</span></h1>
+        <div class="header-actions">
+          <button id="resetStorageBtn" title="Woche im Verlauf speichern und Maske leeren">Woche abschließen ✓</button>
+          <button id="logoutBtn" title="Abmelden">Logout</button>
+        </div>
+      </div>
+
+      <div class="user-row">
+        <span class="user-email" id="userEmail"></span>
+        <span class="sync-status" id="syncStatus"><span class="sync-dot"></span><span id="syncText">Verbinde …</span></span>
+      </div>
+
+      <div class="timer-container">
+        <div class="timer-display" id="timerDisplay">01:00</div>
+        <div class="btn-group">
+          <button type="button" class="btn-preset" onclick="setTimer(45)">45s</button>
+          <button type="button" class="btn-preset" onclick="setTimer(60)">60s</button>
+          <button type="button" class="btn-preset" onclick="setTimer(75)">75s</button>
+          <button type="button" class="btn-preset" onclick="setTimer(90)">90s</button>
+          <button type="button" class="btn-timer-action" id="toggleTimerBtn" onclick="toggleTimer()">Start</button>
+          <button type="button" class="btn-preset" onclick="resetTimer()">Stop</button>
+          <label class="auto-toggle" title="Pause startet automatisch beim Abhaken eines Satzes"><input type="checkbox" id="autoRestToggle" checked> Auto</label>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button type="button" class="tab-btn active" onclick="switchTab('tag1')">Tag 1: OK A</button>
+    <button type="button" class="tab-btn" onclick="switchTab('tag2')">Tag 2: UK A</button>
+    <button type="button" class="tab-btn" onclick="switchTab('tag3')">Tag 3: Pause</button>
+    <button type="button" class="tab-btn" onclick="switchTab('tag4')">Tag 4: OK B</button>
+    <button type="button" class="tab-btn" onclick="switchTab('tag5')">Tag 5: UK B</button>
+    <button type="button" class="tab-btn" onclick="switchTab('stats')">📊 Stats</button>
+    <button type="button" class="tab-btn" onclick="switchTab('info')">Hinweise & TUT</button>
+  </nav>
+
+  <main>
+    <!-- ==================== TAG 1: OBERKÖRPER A ==================== -->
+    <section id="tag1" class="tab-content active">
+      <div class="day-header">
+        <h2>Tag 1: Oberkörper A</h2>
+        <p>Haltung, straffe Brust & Arme (Kein Lat-/Breiten-Fokus)</p>
+        <div class="ghost-legend"><span class="lg-ghost">grau = letztes Training</span><span class="lg-up">mehr</span><span class="lg-down">weniger</span></div>
+      </div>
+
+      <!-- Ex 1 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">1. Brustgestütztes Rudern (70° Winkel)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 90s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Brustlehne entlastet den Rücken. Ellenbogen nach außen führen. 3s nach vorne nachgeben, 1s hinten Schulterblätter zusammenziehen.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex1_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex1_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex1_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex1_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex1_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex1_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex1_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex1_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex1_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 2 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">2. Brustpresse sitzend (Maschine)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-1-1-0</span>
+            <span class="badge badge-pause">Pause: 90s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Rücken fest an das Polster drücken. 3s kontrolliert absenken, 1s Pause am Umkehrpunkt, gleichmäßig drücken.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex2_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex2_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex2_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex2_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex2_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex2_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex2_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex2_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex2_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 3 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">3. Face Pulls am Kabelzug (Seil)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 2-0-1-2</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Seil auf Augenhöhe zum Gesicht ziehen. Am Gesicht 2s halten und Schulterblätter aktiv nach hinten-unten fixieren.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex3_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex3_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex3_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex3_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex3_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex3_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex3_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex3_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex3_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 4 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">4. Trizepsdrücken am Kabelzug (Seil)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Oberarme eng am Körper fixieren. 3s langsam hochlassen, unten Seil spreizen und 1s halten.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex4_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex4_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex4_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex4_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex4_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex4_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex4_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex4_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex4_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 5 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">5. Bizepscurls am Kabelzug</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Aufrechter Stand, Knie leicht gebeugt. Null Schwung aus dem Becken oder dem unteren Rücken!
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex5_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex5_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex5_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex5_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex5_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex5_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex5_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex5_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex5_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAG 2: UNTERKÖRPER A ==================== -->
+    <section id="tag2" class="tab-content">
+      <div class="day-header">
+        <h2>Tag 2: Unterkörper A</h2>
+        <p>Fokus: Quadrizeps & Gluteus (Entlastung der Lendenwirbelsäule)</p>
+        <div class="ghost-legend"><span class="lg-ghost">grau = letztes Training</span><span class="lg-up">mehr</span><span class="lg-down">weniger</span></div>
+      </div>
+
+      <!-- Ex 1 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">1. Bulgarian Split Squats (Kurzhanteln)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 8–10 pro Bein</span>
+            <span class="badge badge-tut">TUT: 3-1-1-0</span>
+            <span class="badge badge-pause">Pause: 90s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Hinteren Fuß ablegen. Oberkörper leicht nach vorn neigen, Rücken brettgerade. 3s tief gehen, 1s stoppen.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex1_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex1_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex1_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex1_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex1_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex1_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex1_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex1_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex1_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 2 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">2. Beinpresse 45° (moderat)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-1-1-0</span>
+            <span class="badge badge-pause">Pause: 90s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Po und unterer Rücken bleiben fest am Polster. Niemals unten im Becken einrunden (Butt Wink vermeiden!).
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex2_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex2_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex2_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex2_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex2_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex2_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex2_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex2_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex2_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 3 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">3. Beinstrecker (Maschine)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Keinerlei Rumpf- und Rückenbelastung. Oben 1s fest anspannen, 3s kontrolliert senken.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex3_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex3_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex3_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex3_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex3_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex3_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex3_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex3_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex3_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 4 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">4. Liegender Beinbeuger (beidbeinig)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Becken aktiv in das Polster drücken, um Hohlkreuzbildung zu vermeiden.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex4_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex4_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex4_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex4_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex4_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex4_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex4_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex4_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex4_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 5 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">5. Wadenheben sitzend (Maschine)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 2-2-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Keinerlei Druck von oben auf die Wirbelsäule. Unten 2s Stretch spüren.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex5_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex5_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex5_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex5_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex5_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex5_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t2_ex5_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t2_ex5_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t2_ex5_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAG 3: PAUSE ==================== -->
+    <section id="tag3" class="tab-content">
+      <div class="day-header">
+        <h2>Tag 3: Regeneration & Schritte</h2>
+        <p>Aktive Erholung für den Stoffwechsel</p>
+      </div>
+      <div class="info-card">
+        <h3>★ Heutiger Fokus</h3>
+        <p>Heute pausiert das Gym! Geh spazieren, sammle deine <strong>10.000 Schritte</strong> und achte auf ausreichend Wasser.</p>
+        <ul>
+          <li>1800 kcal einhalten</li>
+          <li>Stress abbauen (senkt Cortisol)</li>
+          <li>Rücken sanft mobilisieren</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================== TAG 4: OBERKÖRPER B ==================== -->
+    <section id="tag4" class="tab-content">
+      <div class="day-header">
+        <h2>Tag 4: Oberkörper B</h2>
+        <p>Schultern, Arme & Rumpfstabilität (Fokus hintere Schulter)</p>
+        <div class="ghost-legend"><span class="lg-ghost">grau = letztes Training</span><span class="lg-up">mehr</span><span class="lg-down">weniger</span></div>
+      </div>
+
+      <!-- Ex 1 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">1. Kabelzug Reverse Flyes</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Isoliert hintere Schulter. Hinten 1s halten, 3s langsam vorlassen. Macht die Arme von der Seite und hinten schön schlank.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex1_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex1_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex1_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex1_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex1_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex1_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex1_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex1_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex1_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 2 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">2. Seitheben sitzend mit KH</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Aufrecht auf Bank sitzen. Leichtes Gewicht wählen! 3s langsam absenken. Nacken bewusst entspannt lassen.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex2_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex2_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex2_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex2_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex2_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex2_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex2_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex2_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex2_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 3 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">3. Enges Kabelzug-Rudern (nur Retraktion)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-2</span>
+            <span class="badge badge-pause">Pause: 75s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Aufrechter Sitz. Fokus rein auf das Zusammenziehen der Schulterblätter hinten (2s halten). Keinesfalls mit dem Rumpf schaukeln!
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex3_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex3_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex3_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex3_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex3_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex3_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex3_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex3_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex3_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 4 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">4. Trizeps Überkopfdrücken am Kabel</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-1-1-0</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Schrittstellung für stabilen Rumpf. 3s tief in die Dehnung gehen, 1s halten, dann strecken.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex4_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex4_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex4_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex4_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex4_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex4_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex4_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex4_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex4_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 5 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">5. Pallof Press am Kabelzug</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 pro Seite</span>
+            <span class="badge badge-tut">TUT: 2-2-2-0</span>
+            <span class="badge badge-pause">Pause: 45s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Seitlich zum Kabelzug stehen, Griff vor die Brust halten und nach vorn schieben. 2s vorne gegen das Verdrehen stabil halten!
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex5_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex5_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex5_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex5_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex5_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex5_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex5_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex5_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex5_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAG 5: UNTERKÖRPER B ==================== -->
+    <section id="tag5" class="tab-content">
+      <div class="day-header">
+        <h2>Tag 5: Unterkörper B</h2>
+        <p>Gluteus, Beinrückseite & Rumpf-Reha</p>
+        <div class="ghost-legend"><span class="lg-ghost">grau = letztes Training</span><span class="lg-up">mehr</span><span class="lg-down">weniger</span></div>
+      </div>
+
+      <!-- Ex 1 (4 Sätze laut Vorgabe) -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">1. Hip Thrusts (Maschine oder KH)</div>
+          <div class="exercise-badges">
+            <span class="badge">4 Sätze × 10–12 Wdh.</span>
+            <span class="badge badge-tut">TUT: 2-0-1-2</span>
+            <span class="badge badge-pause">Pause: 90s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Oben 2s maximale Gesäßspannung halten. Kinn leicht auf die Brust nehmen, Bewegung rein aus der Hüfte (keine Überstreckung im Lendenbereich).
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex1_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex1_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex1_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex1_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex1_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex1_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex1_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex1_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex1_s3_done">✓</button></td></tr>
+              <tr><td class="set-number">4</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex1_s4_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex1_s4_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex1_s4_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 2 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">2. Rumänisches Kreuzheben (mit KH)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-1-1-0</span>
+            <span class="badge badge-pause">Pause: 90s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Kurzhanteln eng an den Beinen führen. Knie leicht gebeugt. Hüfte weit nach hinten schieben, Rücken absolut gerade (nur bis unter die Kniescheiben absenken).
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex2_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex2_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex2_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex2_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex2_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex2_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex2_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex2_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex2_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 3 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">3. Kabelzug-Kickbacks (Gluteus)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 pro Bein</span>
+            <span class="badge badge-tut">TUT: 2-0-1-2</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Standbein leicht gebeugt. Becken bleibt absolut gerade und ruhig. Oben 2s halten, Bewegung rein aus dem Gesäß.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex3_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex3_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex3_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex3_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex3_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex3_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex3_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex3_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex3_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 4 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">4. Liegender Beinbeuger (einbeinig)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 pro Bein</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Leichtes Gewicht wählen. 3s langsam absenken, 1s Beugung halten. Becken bleibt fest auf die Unterlage gepresst.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex4_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex4_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex4_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex4_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex4_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex4_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t5_ex4_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex4_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex4_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 5 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">5. Bird Dog (Vierfüßlerstand)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 8–10 pro Seite</span>
+            <span class="badge badge-tut">TUT: 3-2-1-0</span>
+            <span class="badge badge-pause">Pause: 45s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Arm und diagonales Bein ausstrecken, Daumen nach oben. 2–3s halten, Rumpf stabil und unbeweglich halten.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td colspan="2"><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex5_s1_reps" placeholder="Wdh" style="max-width:140px;"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex5_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td colspan="2"><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex5_s2_reps" placeholder="Wdh" style="max-width:140px;"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex5_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td colspan="2"><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex5_s3_reps" placeholder="Wdh" style="max-width:140px;"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex5_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== STATS TAB ==================== -->
+    <section id="stats" class="tab-content">
+      <div class="day-header">
+        <h2>📊 Deine Stats</h2>
+        <p>Fortschritt, Rekorde & Körperwerte</p>
+      </div>
+
+      <div class="info-card">
+        <h3>★ Diese Woche</h3>
+        <div id="statsWeek" class="stat-grid"></div>
+      </div>
+
+      <div class="info-card">
+        <h3>★ Volumen pro Woche</h3>
+        <p class="muted-small">Summe aus kg × Wiederholungen aller Sätze</p>
+        <div id="statsVolume"></div>
+      </div>
+
+      <div class="info-card">
+        <h3>★ Körperwerte</h3>
+        <form id="bodyForm" class="body-form" novalidate>
+          <label>Datum<input type="date" id="bodyDate" class="input-field"></label>
+          <label>Gewicht (kg)<input type="number" step="0.1" inputmode="decimal" id="bodyWeight" class="input-field" placeholder="72,5"></label>
+          <label>Bauch (cm)<input type="number" step="0.5" inputmode="decimal" id="bodyWaist" class="input-field" placeholder="84"></label>
+          <button type="submit" class="btn-timer-action">Speichern</button>
+        </form>
+        <div id="bodyCharts"></div>
+        <div id="bodyList"></div>
+      </div>
+
+      <div class="info-card">
+        <h3>★ Persönliche Rekorde</h3>
+        <p class="muted-small">Tipp auf eine Übung für den Verlauf</p>
+        <div id="statsPRs"></div>
+      </div>
+    </section>
+
+    <!-- ==================== INFO TAB ==================== -->
+    <section id="info" class="tab-content">
+      <div class="day-header">
+        <h2>Allgemeine Hinweise & TUT</h2>
+        <p>Bandscheibenschutz, Tempo & Regeneration</p>
+      </div>
+
+      <div class="info-card">
+        <h3>★ Time Under Tension (TUT) – Tempo-Code</h3>
+        <p>Ein Tempo-Code besteht aus 4 Ziffern, z. B. <span class="highlight">3-1-1-0</span>:</p>
+        <ul>
+          <li><span class="highlight">1. Ziffer (3):</span> 3 Sekunden kontrolliertes Absenken (exzentrisch).</li>
+          <li><span class="highlight">2. Ziffer (1):</span> 1 Sekunde Pause am Umkehrpunkt (stabilisieren).</li>
+          <li><span class="highlight">3. Ziffer (1):</span> 1 Sekunde Drücken / Ziehen (konzentrisch).</li>
+          <li><span class="highlight">4. Ziffer (0):</span> Pause am Endpunkt (0 = fließend; 1–2 = Muskel bewusst anspannen).</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>★ Ernährung & Regeneration</h3>
+        <ul>
+          <li><span class="highlight">1800 kcal täglich:</span> Konsequent durchziehen, auch am Wochenende.</li>
+          <li><span class="highlight">Protein-Priorität:</span> Schützt die Muskulatur im Kaloriendefizit.</li>
+          <li><span class="highlight">Schritte:</span> 10.000 Schritte täglich für aktive Erholung und Fettverbrennung.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Modal ===== -->
+  <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalTitle"></h3>
+        <button type="button" class="modal-x" data-close aria-label="Schließen">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions" id="modalActions"></div>
+    </div>
+  </div>
+
+  <!-- ===== Toast ===== -->
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ===== Vollbild-Pausentimer ===== -->
+  <div id="restOverlay" role="dialog" aria-modal="true" aria-label="Pausentimer">
+    <div class="rest-fill" id="restFill"></div>
+    <div class="rest-frame"></div>
+    <div class="rest-inner">
+      <div class="rest-label" id="restLabel">PAUSE</div>
+      <div class="rest-time" id="restTime" aria-live="off">01:00</div>
+      <div class="rest-quote" id="restQuote"></div>
+      <div class="rest-controls">
+        <button type="button" onclick="adjustTimer(-15)">−15s</button>
+        <button type="button" id="restToggleBtn" onclick="toggleTimer()">Pause</button>
+        <button type="button" onclick="adjustTimer(15)">+15s</button>
+        <button type="button" class="rest-end" onclick="resetTimer()">Beenden</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== UI-Logik (Tabs, Timer) – global für onclick ===== -->
+  <script>
+    // Tab Navigation
+    function switchTab(tabId, scroll = true) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => {
+        const attr = btn.getAttribute('onclick');
+        return attr && attr.includes(tabId);
+      });
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+      try { localStorage.setItem('wt_lastTab', tabId); } catch (e) { /* ignore */ }
+    }
+
+    // ---------- Sound ----------
+    let audioCtx = null;
+    function getAudioCtx() {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return null;
+      if (!audioCtx) audioCtx = new AudioCtx();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function beep(freq = 880, duration = 0.25, when = 0, volume = 0.2) {
+      try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const t = ctx.currentTime + when;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(volume, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+        osc.start(t);
+        osc.stop(t + duration);
+      } catch (e) {
+        console.warn('Audio nicht verfügbar:', e);
+      }
+    }
+
+    function playBeep() {
+      beep(880, 0.35, 0);
+      beep(880, 0.35, 0.45);
+      beep(1320, 0.7, 0.9, 0.25);
+    }
+
+    // ---------- Motivationssprüche ----------
+    const QUOTES = [
+      'Atmen. Fokussieren. Nächster Satz wird besser.',
+      'Erholung ist Teil des Trainings – nicht die Pause davon.',
+      'Kontrolle schlägt Gewicht. Jede Wiederholung zählt.',
+      'Du musst nicht motiviert sein. Nur konsequent.',
+      'Langsam runter, stark hoch. Saubere Technik baut Muskeln.',
+      'Der Satz, den du nicht willst, ist der, den du brauchst.',
+      'Disziplin ist, das zu tun, was du dir vorgenommen hast.',
+      'Kleine Fortschritte jede Woche sind große Fortschritte im Jahr.',
+      'Schultern runter, Brust raus, Kopf klar.',
+      'Stark ist nicht, wer nie Pause macht – sondern wer wieder aufsteht.',
+      'Ein Satz nach dem anderen. Mehr musst du gerade nicht tun.',
+      'Champions werden in den Wiederholungen gemacht, die keiner sieht.',
+      'Trink einen Schluck. Gleich geht’s weiter.',
+      'Spür den Muskel, nicht das Gewicht.',
+      'Heute besser als letzte Woche – das ist das ganze Spiel.',
+      'How bout them Cowboys? Nächster Satz – wie ein Champion.'
+    ];
+    const FINAL_QUOTES = ['Mach dich bereit!', 'Griff nehmen, Position finden.', 'Gleich geht’s los!'];
+    let lastQuoteIdx = -1;
+
+    function pickQuote() {
+      let i;
+      do { i = Math.floor(Math.random() * QUOTES.length); } while (QUOTES.length > 1 && i === lastQuoteIdx);
+      lastQuoteIdx = i;
+      return QUOTES[i];
+    }
+
+    // ---------- Bildschirm wach halten ----------
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator && !wakeLock) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => { wakeLock = null; });
+        }
+      } catch (e) { /* nicht unterstützt oder abgelehnt */ }
+    }
+    function releaseWakeLock() {
+      try { if (wakeLock) wakeLock.release(); } catch (e) { /* ignore */ }
+      wakeLock = null;
+    }
+
+    // ---------- Timer-Logik (zeitbasiert, läuft auch bei gedrosseltem Tab korrekt) ----------
+    let timerDuration = 60;     // gewählte Pausendauer in s
+    let timerRemaining = 60;    // verbleibend in s (für Pause/Anzeige)
+    let timerEndAt = 0;         // Zeitstempel, wann die Pause endet
+    let timerInterval = null;
+    let doneTimeout = null;
+    let finalAnnounced = false;
+
+    const timerDisplay = document.getElementById('timerDisplay');
+    const toggleBtn = document.getElementById('toggleTimerBtn');
+    const overlay = document.getElementById('restOverlay');
+    const restTime = document.getElementById('restTime');
+    const restFill = document.getElementById('restFill');
+    const restQuote = document.getElementById('restQuote');
+    const restLabel = document.getElementById('restLabel');
+    const restToggleBtn = document.getElementById('restToggleBtn');
+
+    function fmt(sec) {
+      const s = Math.max(0, Math.ceil(sec));
+      return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    function updateTimerDisplay() {
+      const text = fmt(timerRemaining);
+      timerDisplay.textContent = text;
+      restTime.textContent = text;
+      const frac = timerDuration > 0 ? Math.max(0, Math.min(1, timerRemaining / timerDuration)) : 0;
+      restFill.style.height = (frac * 100) + '%';
+
+      const isFinal = timerRemaining > 0 && timerRemaining <= 10;
+      overlay.classList.toggle('final', isFinal && !!timerInterval);
+      if (isFinal && timerInterval && !finalAnnounced) {
+        finalAnnounced = true;
+        restQuote.textContent = FINAL_QUOTES[Math.floor(Math.random() * FINAL_QUOTES.length)];
+      }
+    }
+
+    function openOverlay() {
+      clearTimeout(doneTimeout);
+      overlay.classList.remove('done', 'paused');
+      restLabel.textContent = 'PAUSE';
+      if (!finalAnnounced) restQuote.textContent = pickQuote();
+      document.body.classList.add('rest-active');
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      requestWakeLock();
+    }
+
+    function closeOverlay() {
+      clearTimeout(doneTimeout);
+      document.body.classList.remove('rest-active');
+      overlay.classList.remove('done', 'paused', 'final');
+      releaseWakeLock();
+    }
+
+    function tick() {
+      timerRemaining = (timerEndAt - Date.now()) / 1000;
+      if (timerRemaining <= 0) {
+        timerRemaining = 0;
+        finishTimer();
+        return;
+      }
+      // kurzer Ton bei 3, 2, 1
+      const whole = Math.ceil(timerRemaining);
+      if (whole <= 3 && whole !== tick.lastBeep) {
+        tick.lastBeep = whole;
+        beep(660, 0.12, 0, 0.15);
+      }
+      updateTimerDisplay();
+    }
+
+    function startTimer() {
+      if (timerInterval) return;
+      if (timerRemaining <= 0) timerRemaining = timerDuration;
+      timerEndAt = Date.now() + timerRemaining * 1000;
+      tick.lastBeep = null;
+      getAudioCtx(); // Audio im Klick-Kontext freischalten (iOS)
+      toggleBtn.textContent = 'Pause';
+      restToggleBtn.textContent = 'Pause';
+      openOverlay();
+      timerInterval = setInterval(tick, 250);
+      tick();
+    }
+
+    function pauseTimer() {
+      if (!timerInterval) return;
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerRemaining = Math.max(0, (timerEndAt - Date.now()) / 1000);
+      toggleBtn.textContent = 'Start';
+      restToggleBtn.textContent = 'Weiter';
+      overlay.classList.add('paused');
+      overlay.classList.remove('final');
+      restLabel.textContent = 'PAUSIERT';
+      updateTimerDisplay();
+    }
+
+    function finishTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerRemaining = 0;
+      updateTimerDisplay();
+      overlay.classList.remove('final', 'paused');
+      overlay.classList.add('done');
+      restLabel.textContent = 'LOS GEHT’S';
+      restTime.textContent = 'GO!';
+      restQuote.textContent = 'Nächster Satz – zeig, was du drauf hast!';
+      toggleBtn.textContent = 'Start';
+      playBeep();
+      try { if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 500]); } catch (e) { /* ignore */ }
+      doneTimeout = setTimeout(() => {
+        closeOverlay();
+        timerRemaining = timerDuration;
+        finalAnnounced = false;
+        updateTimerDisplay();
+      }, 3500);
+    }
+
+    function setTimer(seconds) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerDuration = seconds;
+      timerRemaining = seconds;
+      finalAnnounced = false;
+      startTimer();
+    }
+
+    function toggleTimer() {
+      if (timerInterval) {
+        pauseTimer();
+      } else {
+        if (overlay.classList.contains('done') || timerRemaining <= 0) {
+          timerRemaining = timerDuration;
+          finalAnnounced = false;
+        }
+        startTimer();
+      }
+    }
+
+    function adjustTimer(delta) {
+      if (overlay.classList.contains('done')) return;
+      if (timerInterval) {
+        timerEndAt = Math.max(Date.now() + 1000, timerEndAt + delta * 1000);
+        timerRemaining = (timerEndAt - Date.now()) / 1000;
+      } else {
+        timerRemaining = Math.max(1, timerRemaining + delta);
+      }
+      if (timerRemaining > timerDuration) timerDuration = Math.ceil(timerRemaining);
+      if (timerRemaining > 10) finalAnnounced = false;
+      updateTimerDisplay();
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerRemaining = timerDuration;
+      finalAnnounced = false;
+      toggleBtn.textContent = 'Start';
+      restToggleBtn.textContent = 'Pause';
+      closeOverlay();
+      updateTimerDisplay();
+    }
+
+    // Beim Zurückkehren in den Tab: Zeit sofort nachziehen, Wake Lock erneuern
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && document.body.classList.contains('rest-active')) {
+        requestWakeLock();
+        if (timerInterval) tick();
+      }
+    });
+
+    // Escape beendet den Timer am Desktop
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.body.classList.contains('rest-active')) resetTimer();
+    });
+
+    updateTimerDisplay();
+  </script>
+
+  <!-- ===== Firebase: Login + Firestore-Sync ===== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+      createUserWithEmailAndPassword, signOut, sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import {
+      initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+      doc, getDoc, setDoc, addDoc, deleteDoc, collection, onSnapshot, serverTimestamp,
+      query, orderBy, limit
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCvqMqUBawcxXaNKvfo23nqDv_qQwA6hc",
+      authDomain: "training-835c8.firebaseapp.com",
+      projectId: "training-835c8",
+      storageBucket: "training-835c8.firebasestorage.app",
+      messagingSenderId: "717699553467",
+      appId: "1:717699553467:web:9c948ecf538d4dcd19f19e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Offline-Cache: Werte bleiben auch ohne Netz im Gym erhalten und syncen später.
+    let db;
+    try {
+      db = initializeFirestore(app, {
+        localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+      });
+    } catch (e) {
+      console.warn('Offline-Cache nicht verfügbar, nutze Speicher-Cache:', e);
+      db = initializeFirestore(app, {});
+    }
+
+    // App auf dem Homescreen: Service Worker für Offline-Start
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+      navigator.serviceWorker.register('sw.js').catch(e => console.warn('Service Worker:', e));
+    }
+
+    // =====================================================================
+    // Helfer
+    // =====================================================================
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const num = (v) => (v === undefined || v === null || v === '') ? NaN : parseFloat(String(v).replace(',', '.'));
+    const fmtNum = (n) => (Math.round(n * 10) / 10).toLocaleString('de-DE');
+    const fmtDate = (d) => d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+    const fmtDateLong = (d) => d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    const todayStr = () => {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+    const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+
+    const inputs = Array.from(document.querySelectorAll('.tracker-input'));
+    const checks = Array.from(document.querySelectorAll('.tracker-check'));
+    const trackerIds = new Set([...inputs, ...checks].map(el => el.id));
+
+    // =====================================================================
+    // Übungs-Metadaten direkt aus dem HTML lesen
+    // =====================================================================
+    const exercises = Array.from(document.querySelectorAll('.exercise-card')).map(card => {
+      const first = card.querySelector('.tracker-input');
+      const key = first.id.match(/^(t\d+_ex\d+)/)[1];
+      const nameEl = card.querySelector('.exercise-name');
+      const name = nameEl.textContent.replace(/^\d+\.\s*/, '').trim();
+      const pauseMatch = (card.querySelector('.badge-pause')?.textContent || '').match(/(\d+)/);
+      const setsBadge = card.querySelector('.exercise-badges .badge')?.textContent || '';
+      const range = setsBadge.match(/(\d+)\s*[–-]\s*(\d+)/);
+      return {
+        key, card, nameEl, name,
+        day: card.closest('.tab-content').id,
+        pause: pauseMatch ? parseInt(pauseMatch[1], 10) : 60,
+        repMax: range ? parseInt(range[2], 10) : null,
+        sets: card.querySelectorAll('.sets-table tbody tr').length,
+        hasKg: !!card.querySelector('[id$="_kg"]')
+      };
+    });
+    const exByKey = Object.fromEntries(exercises.map(e => [e.key, e]));
+    const TRAINING_DAYS = [...new Set(exercises.map(e => e.day))];
+    const dayTitle = (day) => document.querySelector(`#${day} .day-header h2`)?.textContent || day;
+    const tabBtn = (day) => Array.from(document.querySelectorAll('.tab-btn'))
+      .find(b => (b.getAttribute('onclick') || '').includes(`'${day}'`));
+
+    function setsOf(ex, values) {
+      const out = [];
+      for (let s = 1; s <= ex.sets; s++) {
+        const p = `${ex.key}_s${s}`;
+        out.push({ s, kg: num(values[p + '_kg']), reps: num(values[p + '_reps']), done: values[p + '_done'] === true });
+      }
+      return out;
+    }
+    const validSet = (ex, st) => st.reps > 0 && (!ex.hasKg || st.kg > 0);
+    function betterSet(ex, a, b) {
+      if (!b) return true;
+      if (ex.hasKg && a.kg !== b.kg) return a.kg > b.kg;
+      return a.reps > b.reps;
+    }
+    function bestSet(ex, values) {
+      let best = null;
+      setsOf(ex, values).forEach(st => { if (validSet(ex, st) && betterSet(ex, st, best)) best = st; });
+      return best;
+    }
+    const exVolume = (ex, values) => !ex.hasKg ? 0 :
+      setsOf(ex, values).reduce((a, st) => a + (validSet(ex, st) ? st.kg * st.reps : 0), 0);
+    const totalVolume = (values) => exercises.reduce((a, ex) => a + exVolume(ex, values), 0);
+    const setLabel = (ex, st) => ex.hasKg ? `${fmtNum(st.kg)} kg × ${fmtNum(st.reps)}` : `${fmtNum(st.reps)} Wdh.`;
+    function dayStats(day, values) {
+      let total = 0, done = 0;
+      exercises.filter(e => e.day === day).forEach(ex => setsOf(ex, values).forEach(st => { total++; if (st.done) done++; }));
+      return { total, done };
+    }
+    function weekStats(values) {
+      let total = 0, done = 0, days = 0;
+      TRAINING_DAYS.forEach(d => { const s = dayStats(d, values); total += s.total; done += s.done; if (s.done > 0) days++; });
+      return { total, done, days };
+    }
+
+    // =====================================================================
+    // Zustand
+    // =====================================================================
+    let uid = null;
+    let stateRef = null;
+    let notesRef = null;
+    let unsubs = [];
+    let currentValues = {};
+    let pending = {};
+    let flushTimer = null;
+    let historyEntries = [];   // neueste zuerst: { id, date, values }
+    let ghosts = {};
+    let historicBest = {};
+    let bodyEntries = [];      // neueste zuerst
+    let notes = {};
+    let notesPending = {};
+    let notesTimer = null;
+    let announcedPR = new Set();
+    let didAutoTab = false;
+    let renderQueued = false;
+
+    const liveValues = () => ({ ...currentValues, ...pending });
+
+    // =====================================================================
+    // UI-Grundbausteine: Status, Toast, Modal, Konfetti
+    // =====================================================================
+    const loginForm = $('loginForm');
+    const loginBtn = $('loginBtn');
+    const authMsg = $('authMsg');
+    const syncStatus = $('syncStatus');
+    const syncText = $('syncText');
+
+    function setSync(kind, text) {
+      syncStatus.className = 'sync-status ' + kind;
+      syncText.textContent = text;
+    }
+
+    function setAuthMsg(text, kind = 'error') {
+      authMsg.textContent = text;
+      authMsg.className = 'auth-msg ' + (text ? kind : '');
+    }
+
+    let toastTimer = null;
+    function showToast(text, ms = 3200) {
+      const t = $('toast');
+      t.textContent = text;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), ms);
+    }
+
+    function burst() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const items = ['🏆', '⭐', '💪', '🔥', '★'];
+      for (let i = 0; i < 18; i++) {
+        const s = document.createElement('span');
+        s.className = 'confetti';
+        s.textContent = items[i % items.length];
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 90 + Math.random() * 140;
+        s.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+        s.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
+        s.style.setProperty('--rot', `${Math.round(Math.random() * 360 - 180)}deg`);
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 1400);
+      }
+    }
+
+    function openModal(title, html, actions = [{ label: 'Schließen', primary: true }]) {
+      $('modalTitle').textContent = title;
+      $('modalBody').innerHTML = html;
+      const box = $('modalActions');
+      box.innerHTML = '';
+      actions.forEach(a => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = a.label;
+        if (a.primary) b.className = 'btn-primary';
+        b.addEventListener('click', () => { closeModal(); if (a.onClick) a.onClick(); });
+        box.appendChild(b);
+      });
+      document.body.classList.add('modal-open');
+    }
+    function closeModal() { document.body.classList.remove('modal-open'); }
+    document.querySelectorAll('#modal [data-close]').forEach(el => el.addEventListener('click', closeModal));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.body.classList.contains('modal-open')) closeModal();
+    });
+
+    // =====================================================================
+    // Charts (inline SVG)
+    // =====================================================================
+    function axisRange(vals) {
+      let min = Math.min(...vals), max = Math.max(...vals);
+      if (min === max) { min -= 1; max += 1; }
+      const pad = (max - min) * 0.15;
+      return [Math.max(0, min - pad), max + pad];
+    }
+
+    function lineChart(points, { color = '#4da3ff', unit = '' } = {}) {
+      const W = 320, H = 170, pl = 40, pr = 30, pt = 22, pb = 24;
+      const [min, max] = axisRange(points.map(p => p.y));
+      const n = points.length;
+      const x = (i) => n === 1 ? pl + (W - pl - pr) / 2 : pl + i * (W - pl - pr) / (n - 1);
+      const y = (v) => pt + (H - pt - pb) * (1 - (v - min) / (max - min));
+      let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">`;
+      for (let k = 0; k <= 2; k++) {
+        const v = min + (max - min) * k / 2;
+        svg += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(255,255,255,0.08)"/>`;
+        svg += `<text x="${pl - 6}" y="${y(v) + 3}" text-anchor="end" font-size="9" fill="#a6b4c9">${fmtNum(v)}</text>`;
+      }
+      if (n > 1) {
+        const d = points.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p.y).toFixed(1)}`).join(' ');
+        svg += `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+      }
+      const step = Math.ceil(n / 6);
+      points.forEach((p, i) => {
+        const last = i === n - 1;
+        svg += `<circle cx="${x(i)}" cy="${y(p.y)}" r="${last ? 4.5 : 3}" fill="${p.highlight ? '#ffd54f' : color}" stroke="#141f33" stroke-width="1.5"/>`;
+        if (n <= 8 || last) {
+          svg += `<text x="${x(i)}" y="${y(p.y) - 8}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#f0f3f8">${fmtNum(p.y)}${unit && last ? ' ' + unit : ''}</text>`;
+        }
+        if (i % step === 0 || last) {
+          svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle" font-size="9" fill="#a6b4c9">${esc(p.label)}</text>`;
+        }
+      });
+      return svg + '</svg>';
+    }
+
+    function barChart(points, { color = '#0a5bd6', currentColor = '#4da3ff' } = {}) {
+      const W = 320, H = 150, pl = 8, pr = 8, pt = 18, pb = 22;
+      const max = Math.max(...points.map(p => p.y), 1);
+      const n = points.length;
+      const slot = (W - pl - pr) / n;
+      const bw = Math.min(34, slot * 0.7);
+      let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">`;
+      points.forEach((p, i) => {
+        const h = (H - pt - pb) * (p.y / max);
+        const cx = pl + slot * i + slot / 2;
+        svg += `<rect x="${cx - bw / 2}" y="${H - pb - h}" width="${bw}" height="${Math.max(h, 1)}" rx="3" fill="${p.current ? currentColor : color}"/>`;
+        if (n <= 8 || p.current) {
+          svg += `<text x="${cx}" y="${H - pb - h - 5}" text-anchor="middle" font-size="9" font-weight="700" fill="#f0f3f8">${p.y >= 1000 ? fmtNum(p.y / 1000) + 't' : fmtNum(p.y)}</text>`;
+        }
+        svg += `<text x="${cx}" y="${H - 7}" text-anchor="middle" font-size="9" fill="#a6b4c9">${esc(p.label)}</text>`;
+      });
+      return svg + '</svg>';
+    }
+
+    // =====================================================================
+    // Elemente in die Übungskarten einbauen
+    // =====================================================================
+    exercises.forEach(ex => {
+      const badges = ex.card.querySelector('.exercise-badges');
+      ex.prBadge = document.createElement('span');
+      ex.prBadge.className = 'badge badge-pr';
+      ex.prBadge.textContent = '🏆 Rekord';
+      ex.prBadge.hidden = true;
+      badges.appendChild(ex.prBadge);
+
+      const body = ex.card.querySelector('.exercise-body');
+      ex.hintEl = document.createElement('div');
+      ex.hintEl.className = 'prog-hint';
+      ex.hintEl.hidden = true;
+      body.prepend(ex.hintEl);
+
+      ex.copyBtn = document.createElement('button');
+      ex.copyBtn.type = 'button';
+      ex.copyBtn.className = 'copy-last-btn';
+      ex.copyBtn.textContent = '↺ Wie letztes Mal';
+      ex.copyBtn.hidden = true;
+      body.querySelector('.sets-table').after(ex.copyBtn);
+
+      ex.noteEl = document.createElement('textarea');
+      ex.noteEl.className = 'ex-note';
+      ex.noteEl.rows = 1;
+      ex.noteEl.placeholder = '📝 Notiz (z. B. Sitz Stufe 4, Polster Loch 2)';
+      body.appendChild(ex.noteEl);
+
+      ex.nameEl.classList.add('clickable');
+      ex.nameEl.title = 'Verlauf anzeigen';
+      ex.nameEl.insertAdjacentHTML('beforeend', '<span class="chart-icon">📈</span>');
+      ex.nameEl.addEventListener('click', () => openExerciseChart(ex));
+    });
+
+    const dayProgress = {};
+    TRAINING_DAYS.forEach(day => {
+      const header = document.querySelector(`#${day} .day-header`);
+      const wrap = document.createElement('div');
+      wrap.className = 'day-progress';
+      wrap.innerHTML = '<div class="dp-bar"><span></span></div><div class="dp-text"></div>';
+      header.appendChild(wrap);
+      dayProgress[day] = { header, bar: wrap.querySelector('.dp-bar span'), text: wrap.querySelector('.dp-text'), btn: tabBtn(day) };
+    });
+
+    function autosize(t) { t.style.height = 'auto'; t.style.height = (t.scrollHeight + 2) + 'px'; }
+
+    // =====================================================================
+    // Geistwerte, Trends, Rekorde, Steigerungs-Hinweise
+    // =====================================================================
+    inputs.forEach(i => { i.dataset.defaultPlaceholder = i.placeholder; });
+
+    function updateTrend(input) {
+      input.classList.remove('trend-up', 'trend-down', 'trend-same');
+      const ghost = num(ghosts[input.id]);
+      const val = num(input.value);
+      if (isNaN(ghost) || isNaN(val)) return;
+      if (val > ghost) input.classList.add('trend-up');
+      else if (val < ghost) input.classList.add('trend-down');
+      else input.classList.add('trend-same');
+    }
+
+    // Neuester Verlaufseintrag gewinnt; fehlende Felder werden aus älteren Einträgen ergänzt
+    function mergeGhosts(valuesNewestFirst) {
+      const out = {};
+      valuesNewestFirst.forEach(values => {
+        Object.entries(values || {}).forEach(([id, v]) => {
+          if (id.endsWith('_done')) return;
+          if (out[id] === undefined && v !== '' && v !== null && v !== undefined) out[id] = v;
+        });
+      });
+      return out;
+    }
+
+    function progressionHint(ex) {
+      if (!ex.repMax) return '';
+      const gs = setsOf(ex, ghosts);
+      if (!gs.every(st => st.reps >= ex.repMax)) return '';
+      if (ex.hasKg) {
+        const kgs = gs.map(st => st.kg).filter(n => n > 0);
+        if (!kgs.length) return '';
+        const next = Math.max(...kgs) + 2.5;
+        return `💪 Letztes Mal alle Sätze mit ${ex.repMax}+ Wdh. geschafft – heute steigern: <b>${fmtNum(next)} kg</b> (oder nächste Stufe).`;
+      }
+      return `💪 Letztes Mal alle Sätze mit ${ex.repMax}+ Wdh. – heute länger halten oder noch langsamer ausführen.`;
+    }
+
+    function applyGhosts() {
+      inputs.forEach(input => {
+        const g = ghosts[input.id];
+        const has = g !== undefined && g !== null && g !== '';
+        input.placeholder = has ? String(g) : input.dataset.defaultPlaceholder;
+        input.classList.toggle('has-ghost', has);
+        input.title = has ? `Letztes Training: ${g}` : '';
+        updateTrend(input);
+      });
+      exercises.forEach(ex => {
+        ex.copyBtn.hidden = !Object.keys(ghosts).some(id => id.startsWith(ex.key + '_'));
+        const hint = progressionHint(ex);
+        ex.hintEl.innerHTML = hint;
+        ex.hintEl.hidden = !hint;
+      });
+    }
+
+    function isPR(ex, values) {
+      const hb = historicBest[ex.key];
+      if (!hb) return false;
+      const cb = bestSet(ex, values);
+      return !!cb && betterSet(ex, cb, hb);
+    }
+
+    function checkPR(ex) {
+      const v = liveValues();
+      if (isPR(ex, v) && !announcedPR.has(ex.key)) {
+        announcedPR.add(ex.key);
+        showToast(`🏆 Neuer Rekord! ${ex.name}: ${setLabel(ex, bestSet(ex, v))}`, 4000);
+        burst();
+        try { if (navigator.vibrate) navigator.vibrate([80, 60, 80]); } catch (e) { /* ignore */ }
+      }
+    }
+
+    function recomputeHistory() {
+      ghosts = mergeGhosts(historyEntries.slice(0, 12).map(h => h.values));
+      historicBest = {};
+      exercises.forEach(ex => {
+        let b = null;
+        historyEntries.forEach(h => { const s = bestSet(ex, h.values); if (s && betterSet(ex, s, b)) b = s; });
+        if (b) historicBest[ex.key] = b;
+      });
+      applyGhosts();
+      scheduleRender();
+    }
+
+    // Vorschlag für ein leeres Feld: letztes Training, sonst Wert aus dem vorigen Satz
+    function suggestionFor(id) {
+      const g = ghosts[id];
+      if (g !== undefined && g !== null && g !== '') return String(g);
+      const m = id.match(/^(t\d+_ex\d+)_s(\d+)_(kg|reps)$/);
+      if (!m || +m[2] < 2) return '';
+      const prev = $(`${m[1]}_s${+m[2] - 1}_${m[3]}`);
+      return prev && prev.value ? prev.value : '';
+    }
+
+    // =====================================================================
+    // Rendering (Werte, Fortschritt, Stats)
+    // =====================================================================
+    function renderValues(values) {
+      inputs.forEach(input => {
+        if (document.activeElement === input) return; // Tippen nicht überschreiben
+        if (hasOwn(pending, input.id)) return;
+        const v = values[input.id];
+        input.value = (v === undefined || v === null) ? '' : String(v);
+        updateTrend(input);
+      });
+      checks.forEach(btn => {
+        if (hasOwn(pending, btn.id)) return;
+        btn.classList.toggle('completed', values[btn.id] === true);
+      });
+    }
+
+    function clearDom() {
+      inputs.forEach(i => { i.value = ''; updateTrend(i); });
+      checks.forEach(b => b.classList.remove('completed'));
+    }
+
+    function renderExtras() {
+      const v = liveValues();
+      exercises.forEach(ex => { ex.prBadge.hidden = !isPR(ex, v); });
+      TRAINING_DAYS.forEach(day => {
+        const s = dayStats(day, v);
+        const dp = dayProgress[day];
+        const complete = s.total > 0 && s.done >= s.total;
+        dp.bar.style.width = (s.total ? (s.done / s.total * 100) : 0) + '%';
+        dp.text.textContent = complete ? '✓ Erledigt' : `${s.done}/${s.total} Sätze`;
+        dp.header.classList.toggle('day-done', complete);
+        if (dp.btn) dp.btn.classList.toggle('done', complete);
+      });
+    }
+
+    function computeStreak() {
+      const weekKey = (d) => {
+        const x = new Date(d);
+        x.setHours(0, 0, 0, 0);
+        x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
+        return `${x.getFullYear()}-${x.getMonth()}-${x.getDate()}`;
+      };
+      const weeks = new Set(historyEntries.map(h => weekKey(h.date)));
+      if (weekStats(liveValues()).done > 0) weeks.add(weekKey(new Date()));
+      const cur = new Date();
+      if (!weeks.has(weekKey(cur))) cur.setDate(cur.getDate() - 7);
+      let n = 0;
+      while (weeks.has(weekKey(cur))) { n++; cur.setDate(cur.getDate() - 7); }
+      return n;
+    }
+
+    function tile(value, label, delta) {
+      return `<div class="stat-tile"><div class="stat-value">${value}</div><div class="stat-label">${label}</div>${delta || ''}</div>`;
+    }
+
+    function renderStats() {
+      const v = liveValues();
+      const ws = weekStats(v);
+      const vol = totalVolume(v);
+      const prevVol = historyEntries.length ? totalVolume(historyEntries[0].values) : 0;
+      let delta = '';
+      if (prevVol > 0 && vol > 0) {
+        const pct = Math.round((vol - prevVol) / prevVol * 100);
+        delta = `<div class="stat-delta ${pct >= 0 ? 'up' : 'down'}">${pct >= 0 ? '▲' : '▼'} ${Math.abs(pct)} % ggü. letzter Woche</div>`;
+      }
+      const prsNow = exercises.filter(ex => isPR(ex, v)).length;
+      const streak = computeStreak();
+      $('statsWeek').innerHTML =
+        tile(`${ws.days}/${TRAINING_DAYS.length}`, 'Trainingstage') +
+        tile(`${ws.done}/${ws.total}`, 'Sätze erledigt') +
+        tile(`${fmtNum(vol)} kg`, 'Volumen', delta) +
+        tile(`${streak} 🔥`, streak === 1 ? 'Woche am Stück' : 'Wochen am Stück') +
+        (prsNow ? tile(`${prsNow} 🏆`, prsNow === 1 ? 'neuer Rekord' : 'neue Rekorde') : '');
+
+      // Volumen pro Woche
+      const volPts = historyEntries.slice(0, 11).reverse().map(h => ({ label: fmtDate(h.date), y: Math.round(totalVolume(h.values)) }));
+      if (vol > 0) volPts.push({ label: 'jetzt', y: Math.round(vol), current: true });
+      $('statsVolume').innerHTML = volPts.length
+        ? barChart(volPts)
+        : '<p class="muted-small">Noch keine Daten – trag deine Sätze ein.</p>';
+
+      // Rekorde
+      const rows = exercises.map(ex => {
+        const hb = historicBest[ex.key];
+        const cb = bestSet(ex, v);
+        const best = cb && betterSet(ex, cb, hb) ? cb : hb;
+        return { ex, best, isNew: isPR(ex, v) };
+      }).filter(r => r.best);
+      $('statsPRs').innerHTML = rows.length
+        ? `<ul class="pr-list">${rows.map(r => `<li data-ex="${r.ex.key}"><span>${esc(r.ex.name)}<br><span class="pr-day">${esc(dayTitle(r.ex.day))}</span></span><span class="pr-val">${r.isNew ? '🏆 ' : ''}${setLabel(r.ex, r.best)}</span></li>`).join('')}</ul>`
+        : '<p class="muted-small">Noch keine Rekorde – die ersten Werte zählen schon.</p>';
+
+      renderBody();
+    }
+
+    function renderBody() {
+      const asc = bodyEntries.slice().reverse();
+      const w = asc.filter(e => e.weight > 0);
+      const b = asc.filter(e => e.waist > 0);
+      let html = '';
+      if (w.length) html += `<div class="chart-caption">Gewicht (kg)</div>` + lineChart(w.slice(-16).map(e => ({ label: fmtDate(e.d), y: e.weight })), { color: '#4da3ff', unit: 'kg' });
+      if (b.length) html += `<div class="chart-caption">Bauchumfang (cm)</div>` + lineChart(b.slice(-16).map(e => ({ label: fmtDate(e.d), y: e.waist })), { color: '#75d98d', unit: 'cm' });
+      if (w.length >= 2) {
+        const diff = w[w.length - 1].weight - w[0].weight;
+        html += `<p class="muted-small" style="margin-top:6px">Seit ${fmtDateLong(w[0].d)}: <b style="color:#fff">${diff > 0 ? '+' : ''}${fmtNum(diff)} kg</b></p>`;
+      }
+      $('bodyCharts').innerHTML = html;
+      $('bodyList').innerHTML = bodyEntries.length
+        ? `<ul class="body-list">${bodyEntries.slice(0, 6).map(e => `<li><span>${fmtDateLong(e.d)}</span><span>${e.weight > 0 ? fmtNum(e.weight) + ' kg' : '–'} · ${e.waist > 0 ? fmtNum(e.waist) + ' cm' : '–'}</span><button type="button" data-del="${esc(e.id)}" aria-label="Eintrag löschen">✕</button></li>`).join('')}</ul>`
+        : '';
+    }
+
+    function scheduleRender() {
+      if (renderQueued) return;
+      renderQueued = true;
+      requestAnimationFrame(() => {
+        renderQueued = false;
+        renderExtras();
+        renderStats();
+      });
+    }
+
+    // =====================================================================
+    // Verlauf einer Übung (Modal)
+    // =====================================================================
+    function openExerciseChart(ex) {
+      const rows = historyEntries.slice().reverse().map(h => ({ date: h.date, values: h.values }));
+      const live = liveValues();
+      if (setsOf(ex, live).some(st => validSet(ex, st))) rows.push({ date: new Date(), values: live, current: true });
+
+      const pts = rows.map(r => {
+        const b = bestSet(ex, r.values);
+        if (!b) return null;
+        const totalReps = setsOf(ex, r.values).reduce((a, st) => a + (st.reps > 0 ? st.reps : 0), 0);
+        return { r, best: b, y: ex.hasKg ? b.kg : totalReps, vol: exVolume(ex, r.values), label: r.current ? 'jetzt' : fmtDate(r.date) };
+      }).filter(Boolean);
+
+      let html;
+      if (!pts.length) {
+        html = '<p>Noch keine Daten. Sobald du eine Woche abschließt, entsteht hier dein Verlauf.</p>';
+      } else {
+        const hb = historicBest[ex.key];
+        html = `<div class="chart-caption">${ex.hasKg ? 'Schwerster Satz pro Woche (kg)' : 'Wiederholungen gesamt pro Woche'}</div>`;
+        html += lineChart(pts.map(p => ({ label: p.label, y: p.y, highlight: p.r.current && isPR(ex, live) })), { unit: ex.hasKg ? 'kg' : '' });
+        if (hb) html += `<p class="muted-small" style="margin-top:8px">Bestleistung bisher: <b style="color:#ffd54f">${setLabel(ex, hb)}</b></p>`;
+        html += `<table class="hist-table"><thead><tr><th>Woche</th><th>Bester Satz</th>${ex.hasKg ? '<th>Volumen</th>' : ''}</tr></thead><tbody>`;
+        pts.slice().reverse().forEach(p => {
+          html += `<tr class="${p.r.current ? 'is-current' : ''}"><td>${p.r.current ? 'aktuell' : fmtDateLong(p.r.date)}</td><td>${setLabel(ex, p.best)}</td>${ex.hasKg ? `<td>${fmtNum(p.vol)} kg</td>` : ''}</tr>`;
+        });
+        html += '</tbody></table>';
+      }
+      const note = (notes[ex.key] || '').trim();
+      if (note) html += `<p class="muted-small" style="margin-top:10px">📝 ${esc(note)}</p>`;
+      openModal(ex.name, html);
+    }
+
+    $('statsPRs').addEventListener('click', (e) => {
+      const li = e.target.closest('li[data-ex]');
+      if (li && exByKey[li.dataset.ex]) openExerciseChart(exByKey[li.dataset.ex]);
+    });
+
+    // =====================================================================
+    // Speichern (gebündelt)
+    // =====================================================================
+    function queueWrite(id, value) {
+      if (!stateRef) return;
+      pending[id] = value;
+      setSync('saving', 'Speichert …');
+      clearTimeout(flushTimer);
+      flushTimer = setTimeout(flush, 600);
+    }
+
+    async function flush() {
+      clearTimeout(flushTimer);
+      if (!stateRef || Object.keys(pending).length === 0) return;
+      const batch = pending;
+      currentValues = { ...currentValues, ...batch };
+      pending = {};
+      try {
+        // merge:true führt die verschachtelte Map "values" feldweise zusammen
+        await setDoc(stateRef, { values: batch, updatedAt: serverTimestamp() }, { merge: true });
+      } catch (e) {
+        console.error('Speichern fehlgeschlagen:', e);
+        setSync('error', 'Fehler beim Speichern');
+      }
+    }
+
+    function fillRowFromSuggestions(base) {
+      ['kg', 'reps'].forEach(f => {
+        const inp = $(`${base}_${f}`);
+        if (inp && inp.value === '') {
+          const s = suggestionFor(inp.id);
+          if (s) { inp.value = s; updateTrend(inp); pending[inp.id] = s; }
+        }
+      });
+    }
+
+    inputs.forEach(input => {
+      const ex = exByKey[input.id.match(/^(t\d+_ex\d+)/)[1]];
+      input.addEventListener('input', () => {
+        updateTrend(input);
+        queueWrite(input.id, input.value);
+        scheduleRender();
+      });
+      input.addEventListener('change', () => checkPR(ex));
+      input.addEventListener('blur', flush);
+    });
+
+    // „Wie letztes Mal“: füllt alle leeren Felder der Übung mit den Werten vom letzten Training
+    exercises.forEach(ex => {
+      ex.copyBtn.addEventListener('click', () => {
+        if (!stateRef) return;
+        let n = 0;
+        for (let s = 1; s <= ex.sets; s++) {
+          ['kg', 'reps'].forEach(f => {
+            const inp = $(`${ex.key}_s${s}_${f}`);
+            if (inp && inp.value === '') {
+              const sug = suggestionFor(inp.id);
+              if (sug) { inp.value = sug; updateTrend(inp); queueWrite(inp.id, sug); n++; }
+            }
+          });
+        }
+        if (n) { flush(); scheduleRender(); }
+      });
+    });
+
+    // Auto-Pause-Einstellung (pro Gerät)
+    const autoToggle = $('autoRestToggle');
+    try { autoToggle.checked = localStorage.getItem('wt_autoRest') !== 'off'; } catch (e) { /* ignore */ }
+    autoToggle.addEventListener('change', () => {
+      try { localStorage.setItem('wt_autoRest', autoToggle.checked ? 'on' : 'off'); } catch (e) { /* ignore */ }
+    });
+
+    checks.forEach(btn => {
+      const ex = exByKey[btn.id.match(/^(t\d+_ex\d+)/)[1]];
+      btn.addEventListener('click', () => {
+        if (!stateRef) return;
+        const completed = btn.classList.toggle('completed');
+        if (completed) fillRowFromSuggestions(btn.id.replace(/_done$/, ''));
+        queueWrite(btn.id, completed);
+        flush();
+        scheduleRender();
+        if (completed) {
+          checkPR(ex);
+          if (autoToggle.checked && typeof window.setTimer === 'function') window.setTimer(ex.pause);
+        }
+      });
+    });
+
+    // Notizen
+    async function flushNotes() {
+      clearTimeout(notesTimer);
+      if (!notesRef || Object.keys(notesPending).length === 0) return;
+      const batch = notesPending;
+      notesPending = {};
+      Object.assign(notes, batch);
+      try {
+        await setDoc(notesRef, { notes: batch, updatedAt: serverTimestamp() }, { merge: true });
+      } catch (e) {
+        console.error('Notiz speichern fehlgeschlagen:', e);
+        setSync('error', 'Fehler beim Speichern');
+      }
+    }
+
+    exercises.forEach(ex => {
+      ex.noteEl.addEventListener('input', () => {
+        autosize(ex.noteEl);
+        if (!notesRef) return;
+        notesPending[ex.key] = ex.noteEl.value;
+        clearTimeout(notesTimer);
+        notesTimer = setTimeout(flushNotes, 800);
+      });
+      ex.noteEl.addEventListener('blur', flushNotes);
+    });
+
+    function renderNotes() {
+      exercises.forEach(ex => {
+        if (document.activeElement === ex.noteEl || hasOwn(notesPending, ex.key)) return;
+        ex.noteEl.value = notes[ex.key] || '';
+        autosize(ex.noteEl);
+      });
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') { flush(); flushNotes(); }
+    });
+
+    window.addEventListener('online', () => setSync('', 'Gespeichert'));
+    window.addEventListener('offline', () => setSync('offline', 'Offline – synct später'));
+
+    // =====================================================================
+    // Körperwerte
+    // =====================================================================
+    $('bodyDate').value = todayStr();
+    $('bodyForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!uid) return;
+      const date = $('bodyDate').value || todayStr();
+      const weight = num($('bodyWeight').value);
+      const waist = num($('bodyWaist').value);
+      if (!(weight > 0) && !(waist > 0)) { showToast('Bitte Gewicht oder Bauchumfang eintragen.'); return; }
+      addDoc(collection(db, 'users', uid, 'body'), {
+        date,
+        weight: weight > 0 ? weight : null,
+        waist: waist > 0 ? waist : null,
+        createdAt: serverTimestamp()
+      }).catch(err => { console.error(err); showToast('Speichern fehlgeschlagen.'); });
+      $('bodyWeight').value = '';
+      $('bodyWaist').value = '';
+      showToast('✓ Körperwerte gespeichert');
+    });
+
+    $('bodyList').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-del]');
+      if (!b || !uid) return;
+      openModal('Eintrag löschen?', '<p>Dieser Körperwert wird dauerhaft entfernt.</p>', [
+        { label: 'Abbrechen' },
+        { label: 'Löschen', primary: true, onClick: () => deleteDoc(doc(db, 'users', uid, 'body', b.dataset.del)).catch(console.error) }
+      ]);
+    });
+
+    // =====================================================================
+    // Einmalige Übernahme alter localStorage-Daten
+    // =====================================================================
+    function readLegacyLocalStorage() {
+      const legacy = {};
+      try {
+        trackerIds.forEach(id => {
+          const raw = localStorage.getItem(id);
+          if (raw === null) return;
+          if (id.endsWith('_done')) { if (raw === 'true') legacy[id] = true; }
+          else if (raw !== '') legacy[id] = raw;
+        });
+      } catch (e) { /* localStorage gesperrt */ }
+      return legacy;
+    }
+
+    async function migrateIfNeeded() {
+      const legacy = readLegacyLocalStorage();
+      if (Object.keys(legacy).length === 0) return;
+      try {
+        const snap = await getDoc(stateRef);
+        if (!snap.exists()) {
+          await setDoc(stateRef, { values: legacy, updatedAt: serverTimestamp(), migratedFromLocal: true });
+        }
+        trackerIds.forEach(id => localStorage.removeItem(id));
+      } catch (e) {
+        console.warn('Migration übersprungen:', e);
+      }
+    }
+
+    // =====================================================================
+    // Woche abschließen: Zusammenfassung + Archiv
+    // =====================================================================
+    $('resetStorageBtn').addEventListener('click', async () => {
+      if (!stateRef) return;
+      await flush();
+      const v = { ...currentValues };
+      const hasData = Object.values(v).some(x => x !== '' && x !== false && x !== null);
+      if (!hasData) {
+        openModal('Woche abschließen', '<p>Diese Woche sind noch keine Werte eingetragen.</p>');
+        return;
+      }
+      const ws = weekStats(v);
+      const vol = totalVolume(v);
+      const prevVol = historyEntries.length ? totalVolume(historyEntries[0].values) : 0;
+      const prs = exercises.filter(ex => isPR(ex, v));
+      let delta = '';
+      if (prevVol > 0) {
+        const pct = Math.round((vol - prevVol) / prevVol * 100);
+        delta = `<div class="stat-delta ${pct >= 0 ? 'up' : 'down'}">${pct >= 0 ? '▲' : '▼'} ${Math.abs(pct)} % ggü. Vorwoche</div>`;
+      }
+      let html = `<div class="stat-grid">${tile(`${ws.days}/${TRAINING_DAYS.length}`, 'Trainingstage')}${tile(`${ws.done}/${ws.total}`, 'Sätze erledigt')}${tile(`${fmtNum(vol)} kg`, 'Volumen', delta)}${tile(`${prs.length} 🏆`, 'neue Rekorde')}</div>`;
+      if (prs.length) {
+        html += `<ul class="pr-list" style="margin-top:10px">${prs.map(ex => `<li><span>${esc(ex.name)}</span><span class="pr-val">🏆 ${setLabel(ex, bestSet(ex, v))}</span></li>`).join('')}</ul>`;
+      }
+      html += '<p style="margin-top:12px">Die Werte werden im Verlauf gespeichert und erscheinen nächste Woche als graue Zielwerte. Die Maske wird geleert.</p>';
+      const summary = { volume: Math.round(vol), setsDone: ws.done, setsTotal: ws.total, days: ws.days, prs: prs.map(ex => ex.key) };
+      openModal('Woche abschließen ✓', html, [
+        { label: 'Abbrechen' },
+        { label: '✓ Abschließen', primary: true, onClick: () => archiveWeek(v, summary) }
+      ]);
+    });
+
+    function archiveWeek(values, summary) {
+      // Nicht auf den Server warten: offline landen die Schreibvorgänge im Cache und syncen später.
+      Promise.all([
+        addDoc(collection(db, 'users', uid, 'history'), { values, summary, archivedAt: serverTimestamp() }),
+        setDoc(stateRef, { values: {}, updatedAt: serverTimestamp() })
+      ]).catch(e => {
+        console.error('Abschließen fehlgeschlagen:', e);
+        setSync('error', 'Fehler beim Speichern');
+      });
+      currentValues = {};
+      pending = {};
+      announcedPR = new Set();
+      clearDom();
+      window.switchTab(TRAINING_DAYS[0]);
+      showToast('✓ Woche gespeichert – starke Arbeit! 💪');
+      scheduleRender();
+    }
+
+    // =====================================================================
+    // Beim Öffnen direkt den nächsten Trainingstag zeigen
+    // =====================================================================
+    function autoOpenDay() {
+      const v = liveValues();
+      let last = -1;
+      TRAINING_DAYS.forEach((d, i) => { if (dayStats(d, v).done > 0) last = i; });
+      let target = TRAINING_DAYS[0];
+      if (last >= 0) {
+        const s = dayStats(TRAINING_DAYS[last], v);
+        target = (s.done >= s.total && last < TRAINING_DAYS.length - 1) ? TRAINING_DAYS[last + 1] : TRAINING_DAYS[last];
+      }
+      window.switchTab(target, false);
+    }
+
+    // =====================================================================
+    // Login / Registrierung / Logout
+    // =====================================================================
+    function authErrorText(err) {
+      switch (err && err.code) {
+        case 'auth/invalid-email': return 'Ungültige E-Mail-Adresse.';
+        case 'auth/invalid-credential':
+        case 'auth/wrong-password':
+        case 'auth/user-not-found': return 'E-Mail oder Passwort falsch.';
+        case 'auth/user-disabled': return 'Dieser Account ist deaktiviert.';
+        case 'auth/too-many-requests': return 'Zu viele Versuche – bitte kurz warten.';
+        case 'auth/network-request-failed': return 'Keine Verbindung zum Server.';
+        case 'auth/email-already-in-use': return 'Für diese E-Mail gibt es schon ein Konto – bitte anmelden.';
+        case 'auth/weak-password': return 'Passwort zu kurz (mind. 6 Zeichen).';
+        case 'auth/operation-not-allowed': return 'E-Mail/Passwort-Login ist in Firebase noch nicht aktiviert.';
+        case 'auth/admin-restricted-operation': return 'Registrierung ist in Firebase deaktiviert.';
+        case 'auth/unauthorized-domain': return 'Diese Domain ist in Firebase nicht freigegeben.';
+        default: return 'Anmeldung fehlgeschlagen.';
+      }
+    }
+
+    let registerMode = false;
+    $('toggleModeBtn').addEventListener('click', () => {
+      registerMode = !registerMode;
+      loginBtn.textContent = registerMode ? 'Konto erstellen' : 'Anmelden';
+      $('toggleModeBtn').textContent = registerMode ? 'Schon ein Konto? Anmelden' : 'Noch kein Konto? Registrieren';
+      $('forgotBtn').style.display = registerMode ? 'none' : '';
+      $('loginPassword').autocomplete = registerMode ? 'new-password' : 'current-password';
+      document.querySelector('.auth-sub').textContent = registerMode ? 'Neues Konto anlegen' : 'Bitte melde dich an';
+      setAuthMsg('');
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = $('loginEmail').value.trim();
+      const password = $('loginPassword').value;
+      if (!email || !password) { setAuthMsg('Bitte E-Mail und Passwort eingeben.'); return; }
+      loginBtn.disabled = true;
+      setAuthMsg('');
+      try {
+        if (registerMode) await createUserWithEmailAndPassword(auth, email, password);
+        else await signInWithEmailAndPassword(auth, email, password);
+        $('loginPassword').value = '';
+      } catch (err) {
+        setAuthMsg(authErrorText(err));
+      } finally {
+        loginBtn.disabled = false;
+      }
+    });
+
+    $('forgotBtn').addEventListener('click', async () => {
+      const email = $('loginEmail').value.trim();
+      if (!email) { setAuthMsg('Bitte zuerst deine E-Mail eintragen.'); return; }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        setAuthMsg('Falls der Account existiert, kommt gleich eine Mail zum Zurücksetzen.', 'ok');
+      } catch (err) {
+        setAuthMsg(authErrorText(err));
+      }
+    });
+
+    $('logoutBtn').addEventListener('click', async () => {
+      await flush();
+      await flushNotes();
+      await signOut(auth);
+    });
+
+    // =====================================================================
+    // Auth-Status & Live-Listener
+    // =====================================================================
+    function stopListeners() {
+      unsubs.forEach(u => { try { u(); } catch (e) { /* ignore */ } });
+      unsubs = [];
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      stopListeners();
+      pending = {};
+      notesPending = {};
+      currentValues = {};
+      historyEntries = [];
+      bodyEntries = [];
+      notes = {};
+      ghosts = {};
+      historicBest = {};
+      announcedPR = new Set();
+      didAutoTab = false;
+      applyGhosts();
+      clearDom();
+      renderNotes();
+      closeModal();
+
+      if (!user) {
+        uid = null;
+        stateRef = null;
+        notesRef = null;
+        document.body.classList.remove('auth-loading', 'signed-in');
+        document.body.classList.add('signed-out');
+        return;
+      }
+
+      uid = user.uid;
+      stateRef = doc(db, 'users', uid, 'tracker', 'current');
+      notesRef = doc(db, 'users', uid, 'tracker', 'notes');
+      $('userEmail').textContent = user.email || '';
+      document.body.classList.remove('auth-loading', 'signed-out');
+      document.body.classList.add('signed-in');
+      setSync('saving', 'Lade …');
+
+      await migrateIfNeeded();
+      if (!stateRef || user.uid !== uid) return; // inzwischen ausgeloggt
+      const myUid = uid;
+      const onErr = (label) => (err) => {
+        console.error(label, err);
+        setSync('error', err.code === 'permission-denied' ? 'Kein Zugriff (Rules prüfen)' : 'Sync-Fehler');
+      };
+
+      // Aktuelle Woche
+      unsubs.push(onSnapshot(stateRef, { includeMetadataChanges: true }, (snap) => {
+        if (uid !== myUid) return;
+        currentValues = (snap.exists() && snap.data().values) || {};
+        renderValues(currentValues);
+        scheduleRender();
+        if (!didAutoTab) { didAutoTab = true; autoOpenDay(); }
+        if (!navigator.onLine) setSync('offline', 'Offline – synct später');
+        else if (snap.metadata.hasPendingWrites || Object.keys(pending).length) setSync('saving', 'Speichert …');
+        else setSync('', 'Gespeichert');
+      }, onErr('Tracker')));
+
+      // Verlauf (für Geistwerte, Rekorde, Charts)
+      unsubs.push(onSnapshot(
+        query(collection(db, 'users', uid, 'history'), orderBy('archivedAt', 'desc'), limit(60)),
+        (snap) => {
+          if (uid !== myUid) return;
+          historyEntries = snap.docs.map(d => {
+            const data = d.data({ serverTimestamps: 'estimate' });
+            return { id: d.id, date: data.archivedAt ? data.archivedAt.toDate() : new Date(), values: data.values || {} };
+          }).sort((a, b) => b.date - a.date);
+          recomputeHistory();
+        }, onErr('Verlauf')));
+
+      // Notizen
+      unsubs.push(onSnapshot(notesRef, (snap) => {
+        if (uid !== myUid) return;
+        notes = (snap.exists() && snap.data().notes) || {};
+        renderNotes();
+      }, onErr('Notizen')));
+
+      // Körperwerte
+      unsubs.push(onSnapshot(
+        query(collection(db, 'users', uid, 'body'), orderBy('date', 'desc'), limit(120)),
+        (snap) => {
+          if (uid !== myUid) return;
+          bodyEntries = snap.docs.map(d => {
+            const x = d.data();
+            const [Y, M, D] = String(x.date || '').split('-').map(Number);
+            return { id: d.id, d: (Y ? new Date(Y, M - 1, D) : new Date()), weight: num(x.weight), waist: num(x.waist) };
+          });
+          renderBody();
+        }, onErr('Körperwerte')));
+    });
+  </script>
+</body>
+</html>
