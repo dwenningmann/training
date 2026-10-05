@@ -621,6 +621,23 @@
 
     [hidden] { display: none !important; }
 
+    /* Große Touch-Ziele für zittrige Finger */
+    .sets-table td { padding: 5px 3px; }
+    .input-field { min-height: 46px; font-size: 1.1rem; }
+    .check-cell { width: 22%; }
+    .check-btn {
+      width: 100%;
+      max-width: 72px;
+      min-height: 46px;
+      font-size: 1.4rem;
+      line-height: 1;
+      padding: 0;
+      touch-action: manipulation;
+    }
+    .check-btn.completed { box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.35); }
+    .btn-preset, .btn-timer-action { min-height: 42px; min-width: 52px; font-size: 0.95rem; touch-action: manipulation; }
+    .rest-controls button { min-height: 56px; min-width: 84px; font-size: 1.15rem; touch-action: manipulation; }
+
     header { padding-top: max(12px, env(safe-area-inset-top)); }
 
     @media (max-width: 430px) {
@@ -1061,169 +1078,20 @@
 
   <!-- Navigation Tabs -->
   <nav class="nav-tabs">
-    <button type="button" class="tab-btn active" onclick="switchTab('tag1')">Tag 1: OK A</button>
-    <button type="button" class="tab-btn" onclick="switchTab('tag2')">Tag 2: UK A</button>
+    <button type="button" class="tab-btn active" onclick="switchTab('tag2')">Tag 1: UK A</button>
+    <button type="button" class="tab-btn" onclick="switchTab('tag1')">Tag 2: OK A</button>
     <button type="button" class="tab-btn" onclick="switchTab('tag3')">Tag 3: Pause</button>
-    <button type="button" class="tab-btn" onclick="switchTab('tag4')">Tag 4: OK B</button>
-    <button type="button" class="tab-btn" onclick="switchTab('tag5')">Tag 5: UK B</button>
+    <button type="button" class="tab-btn" onclick="switchTab('tag5')">Tag 4: UK B</button>
+    <button type="button" class="tab-btn" onclick="switchTab('tag4')">Tag 5: OK B</button>
     <button type="button" class="tab-btn" onclick="switchTab('stats')">📊 Stats</button>
     <button type="button" class="tab-btn" onclick="switchTab('info')">Hinweise & TUT</button>
   </nav>
 
   <main>
-    <!-- ==================== TAG 1: OBERKÖRPER A ==================== -->
-    <section id="tag1" class="tab-content active">
+    <!-- ==================== TAG 1: UNTERKÖRPER A ==================== -->
+    <section id="tag2" class="tab-content active">
       <div class="day-header">
-        <h2>Tag 1: Oberkörper A</h2>
-        <p>Haltung, straffe Brust & Arme (Kein Lat-/Breiten-Fokus)</p>
-        <div class="ghost-legend"><span class="lg-ghost">grau = letztes Training</span><span class="lg-up">mehr</span><span class="lg-down">weniger</span></div>
-      </div>
-
-      <!-- Ex 1 -->
-      <div class="exercise-card">
-        <div class="exercise-header">
-          <div class="exercise-name">1. Brustgestütztes Rudern (70° Winkel)</div>
-          <div class="exercise-badges">
-            <span class="badge">3 Sätze × 10–12 Wdh.</span>
-            <span class="badge badge-tut">TUT: 3-0-1-1</span>
-            <span class="badge badge-pause">Pause: 90s</span>
-          </div>
-        </div>
-        <div class="exercise-body">
-          <details class="exercise-accordion">
-            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
-            <div class="exercise-notes">
-              Brustlehne entlastet den Rücken. Ellenbogen nach außen führen. 3s nach vorne nachgeben, 1s hinten Schulterblätter zusammenziehen.
-            </div>
-          </details>
-          <table class="sets-table">
-            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
-            <tbody>
-              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex1_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex1_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex1_s1_done">✓</button></td></tr>
-              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex1_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex1_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex1_s2_done">✓</button></td></tr>
-              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex1_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex1_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex1_s3_done">✓</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Ex 2 -->
-      <div class="exercise-card">
-        <div class="exercise-header">
-          <div class="exercise-name">2. Brustpresse sitzend (Maschine)</div>
-          <div class="exercise-badges">
-            <span class="badge">3 Sätze × 10–12 Wdh.</span>
-            <span class="badge badge-tut">TUT: 3-1-1-0</span>
-            <span class="badge badge-pause">Pause: 90s</span>
-          </div>
-        </div>
-        <div class="exercise-body">
-          <details class="exercise-accordion">
-            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
-            <div class="exercise-notes">
-              Rücken fest an das Polster drücken. 3s kontrolliert absenken, 1s Pause am Umkehrpunkt, gleichmäßig drücken.
-            </div>
-          </details>
-          <table class="sets-table">
-            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
-            <tbody>
-              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex2_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex2_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex2_s1_done">✓</button></td></tr>
-              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex2_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex2_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex2_s2_done">✓</button></td></tr>
-              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex2_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex2_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex2_s3_done">✓</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Ex 3 -->
-      <div class="exercise-card">
-        <div class="exercise-header">
-          <div class="exercise-name">3. Face Pulls am Kabelzug (Seil)</div>
-          <div class="exercise-badges">
-            <span class="badge">3 Sätze × 12–15 Wdh.</span>
-            <span class="badge badge-tut">TUT: 2-0-1-2</span>
-            <span class="badge badge-pause">Pause: 60s</span>
-          </div>
-        </div>
-        <div class="exercise-body">
-          <details class="exercise-accordion">
-            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
-            <div class="exercise-notes">
-              Seil auf Augenhöhe zum Gesicht ziehen. Am Gesicht 2s halten und Schulterblätter aktiv nach hinten-unten fixieren.
-            </div>
-          </details>
-          <table class="sets-table">
-            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
-            <tbody>
-              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex3_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex3_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex3_s1_done">✓</button></td></tr>
-              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex3_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex3_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex3_s2_done">✓</button></td></tr>
-              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex3_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex3_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex3_s3_done">✓</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Ex 4 -->
-      <div class="exercise-card">
-        <div class="exercise-header">
-          <div class="exercise-name">4. Trizepsdrücken am Kabelzug (Seil)</div>
-          <div class="exercise-badges">
-            <span class="badge">3 Sätze × 12–15 Wdh.</span>
-            <span class="badge badge-tut">TUT: 3-0-1-1</span>
-            <span class="badge badge-pause">Pause: 60s</span>
-          </div>
-        </div>
-        <div class="exercise-body">
-          <details class="exercise-accordion">
-            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
-            <div class="exercise-notes">
-              Oberarme eng am Körper fixieren. 3s langsam hochlassen, unten Seil spreizen und 1s halten.
-            </div>
-          </details>
-          <table class="sets-table">
-            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
-            <tbody>
-              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex4_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex4_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex4_s1_done">✓</button></td></tr>
-              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex4_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex4_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex4_s2_done">✓</button></td></tr>
-              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex4_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex4_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex4_s3_done">✓</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Ex 5 -->
-      <div class="exercise-card">
-        <div class="exercise-header">
-          <div class="exercise-name">5. Bizepscurls am Kabelzug</div>
-          <div class="exercise-badges">
-            <span class="badge">3 Sätze × 12–15 Wdh.</span>
-            <span class="badge badge-tut">TUT: 3-0-1-1</span>
-            <span class="badge badge-pause">Pause: 60s</span>
-          </div>
-        </div>
-        <div class="exercise-body">
-          <details class="exercise-accordion">
-            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
-            <div class="exercise-notes">
-              Aufrechter Stand, Knie leicht gebeugt. Null Schwung aus dem Becken oder dem unteren Rücken!
-            </div>
-          </details>
-          <table class="sets-table">
-            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
-            <tbody>
-              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex5_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex5_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex5_s1_done">✓</button></td></tr>
-              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex5_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex5_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex5_s2_done">✓</button></td></tr>
-              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex5_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex5_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex5_s3_done">✓</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== TAG 2: UNTERKÖRPER A ==================== -->
-    <section id="tag2" class="tab-content">
-      <div class="day-header">
-        <h2>Tag 2: Unterkörper A</h2>
+        <h2>Tag 1: Unterkörper A</h2>
         <p>Fokus: Quadrizeps & Gluteus (Entlastung der Lendenwirbelsäule)</p>
         <div class="ghost-legend"><span class="lg-ghost">grau = letztes Training</span><span class="lg-up">mehr</span><span class="lg-down">weniger</span></div>
       </div>
@@ -1369,6 +1237,155 @@
       </div>
     </section>
 
+    <!-- ==================== TAG 2: OBERKÖRPER A ==================== -->
+    <section id="tag1" class="tab-content">
+      <div class="day-header">
+        <h2>Tag 2: Oberkörper A</h2>
+        <p>Haltung, straffe Brust & Arme (Kein Lat-/Breiten-Fokus)</p>
+        <div class="ghost-legend"><span class="lg-ghost">grau = letztes Training</span><span class="lg-up">mehr</span><span class="lg-down">weniger</span></div>
+      </div>
+
+      <!-- Ex 1 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">1. Brustgestütztes Rudern (70° Winkel)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 90s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Brustlehne entlastet den Rücken. Ellenbogen nach außen führen. 3s nach vorne nachgeben, 1s hinten Schulterblätter zusammenziehen.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex1_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex1_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex1_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex1_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex1_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex1_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex1_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex1_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex1_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 2 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">2. Brustpresse sitzend (Maschine)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-1-1-0</span>
+            <span class="badge badge-pause">Pause: 90s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Rücken fest an das Polster drücken. 3s kontrolliert absenken, 1s Pause am Umkehrpunkt, gleichmäßig drücken.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex2_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex2_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex2_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex2_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex2_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex2_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex2_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex2_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex2_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 3 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">3. Face Pulls am Kabelzug (Seil)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 2-0-1-2</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Seil auf Augenhöhe zum Gesicht ziehen. Am Gesicht 2s halten und Schulterblätter aktiv nach hinten-unten fixieren.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex3_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex3_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex3_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex3_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex3_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex3_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex3_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex3_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex3_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 4 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">4. Trizepsdrücken am Kabelzug (Seil)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Oberarme eng am Körper fixieren. 3s langsam hochlassen, unten Seil spreizen und 1s halten.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex4_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex4_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex4_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex4_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex4_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex4_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex4_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex4_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex4_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 5 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">5. Bizepscurls am Kabelzug</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Aufrechter Stand, Knie leicht gebeugt. Null Schwung aus dem Becken oder dem unteren Rücken!
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex5_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex5_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex5_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex5_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex5_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex5_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t1_ex5_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t1_ex5_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t1_ex5_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <!-- ==================== TAG 3: PAUSE ==================== -->
     <section id="tag3" class="tab-content">
       <div class="day-header">
@@ -1386,159 +1403,10 @@
       </div>
     </section>
 
-    <!-- ==================== TAG 4: OBERKÖRPER B ==================== -->
-    <section id="tag4" class="tab-content">
-      <div class="day-header">
-        <h2>Tag 4: Oberkörper B</h2>
-        <p>Schultern, Arme & Rumpfstabilität (Fokus hintere Schulter)</p>
-        <div class="ghost-legend"><span class="lg-ghost">grau = letztes Training</span><span class="lg-up">mehr</span><span class="lg-down">weniger</span></div>
-      </div>
-
-      <!-- Ex 1 -->
-      <div class="exercise-card">
-        <div class="exercise-header">
-          <div class="exercise-name">1. Kabelzug Reverse Flyes</div>
-          <div class="exercise-badges">
-            <span class="badge">3 Sätze × 12–15 Wdh.</span>
-            <span class="badge badge-tut">TUT: 3-0-1-1</span>
-            <span class="badge badge-pause">Pause: 60s</span>
-          </div>
-        </div>
-        <div class="exercise-body">
-          <details class="exercise-accordion">
-            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
-            <div class="exercise-notes">
-              Isoliert hintere Schulter. Hinten 1s halten, 3s langsam vorlassen. Macht die Arme von der Seite und hinten schön schlank.
-            </div>
-          </details>
-          <table class="sets-table">
-            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
-            <tbody>
-              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex1_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex1_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex1_s1_done">✓</button></td></tr>
-              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex1_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex1_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex1_s2_done">✓</button></td></tr>
-              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex1_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex1_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex1_s3_done">✓</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Ex 2 -->
-      <div class="exercise-card">
-        <div class="exercise-header">
-          <div class="exercise-name">2. Seitheben sitzend mit KH</div>
-          <div class="exercise-badges">
-            <span class="badge">3 Sätze × 12–15 Wdh.</span>
-            <span class="badge badge-tut">TUT: 3-0-1-1</span>
-            <span class="badge badge-pause">Pause: 60s</span>
-          </div>
-        </div>
-        <div class="exercise-body">
-          <details class="exercise-accordion">
-            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
-            <div class="exercise-notes">
-              Aufrecht auf Bank sitzen. Leichtes Gewicht wählen! 3s langsam absenken. Nacken bewusst entspannt lassen.
-            </div>
-          </details>
-          <table class="sets-table">
-            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
-            <tbody>
-              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex2_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex2_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex2_s1_done">✓</button></td></tr>
-              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex2_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex2_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex2_s2_done">✓</button></td></tr>
-              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex2_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex2_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex2_s3_done">✓</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Ex 3 -->
-      <div class="exercise-card">
-        <div class="exercise-header">
-          <div class="exercise-name">3. Enges Kabelzug-Rudern (nur Retraktion)</div>
-          <div class="exercise-badges">
-            <span class="badge">3 Sätze × 10–12 Wdh.</span>
-            <span class="badge badge-tut">TUT: 3-0-1-2</span>
-            <span class="badge badge-pause">Pause: 75s</span>
-          </div>
-        </div>
-        <div class="exercise-body">
-          <details class="exercise-accordion">
-            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
-            <div class="exercise-notes">
-              Aufrechter Sitz. Fokus rein auf das Zusammenziehen der Schulterblätter hinten (2s halten). Keinesfalls mit dem Rumpf schaukeln!
-            </div>
-          </details>
-          <table class="sets-table">
-            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
-            <tbody>
-              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex3_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex3_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex3_s1_done">✓</button></td></tr>
-              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex3_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex3_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex3_s2_done">✓</button></td></tr>
-              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex3_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex3_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex3_s3_done">✓</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Ex 4 -->
-      <div class="exercise-card">
-        <div class="exercise-header">
-          <div class="exercise-name">4. Trizeps Überkopfdrücken am Kabel</div>
-          <div class="exercise-badges">
-            <span class="badge">3 Sätze × 12–15 Wdh.</span>
-            <span class="badge badge-tut">TUT: 3-1-1-0</span>
-            <span class="badge badge-pause">Pause: 60s</span>
-          </div>
-        </div>
-        <div class="exercise-body">
-          <details class="exercise-accordion">
-            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
-            <div class="exercise-notes">
-              Schrittstellung für stabilen Rumpf. 3s tief in die Dehnung gehen, 1s halten, dann strecken.
-            </div>
-          </details>
-          <table class="sets-table">
-            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
-            <tbody>
-              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex4_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex4_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex4_s1_done">✓</button></td></tr>
-              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex4_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex4_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex4_s2_done">✓</button></td></tr>
-              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex4_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex4_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex4_s3_done">✓</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Ex 5 -->
-      <div class="exercise-card">
-        <div class="exercise-header">
-          <div class="exercise-name">5. Pallof Press am Kabelzug</div>
-          <div class="exercise-badges">
-            <span class="badge">3 Sätze × 10–12 pro Seite</span>
-            <span class="badge badge-tut">TUT: 2-2-2-0</span>
-            <span class="badge badge-pause">Pause: 45s</span>
-          </div>
-        </div>
-        <div class="exercise-body">
-          <details class="exercise-accordion">
-            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
-            <div class="exercise-notes">
-              Seitlich zum Kabelzug stehen, Griff vor die Brust halten und nach vorn schieben. 2s vorne gegen das Verdrehen stabil halten!
-            </div>
-          </details>
-          <table class="sets-table">
-            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
-            <tbody>
-              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex5_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex5_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex5_s1_done">✓</button></td></tr>
-              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex5_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex5_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex5_s2_done">✓</button></td></tr>
-              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex5_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex5_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex5_s3_done">✓</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== TAG 5: UNTERKÖRPER B ==================== -->
+    <!-- ==================== TAG 4: UNTERKÖRPER B ==================== -->
     <section id="tag5" class="tab-content">
       <div class="day-header">
-        <h2>Tag 5: Unterkörper B</h2>
+        <h2>Tag 4: Unterkörper B</h2>
         <p>Gluteus, Beinrückseite & Rumpf-Reha</p>
         <div class="ghost-legend"><span class="lg-ghost">grau = letztes Training</span><span class="lg-up">mehr</span><span class="lg-down">weniger</span></div>
       </div>
@@ -1679,6 +1547,155 @@
               <tr><td class="set-number">1</td><td colspan="2"><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex5_s1_reps" placeholder="Wdh" style="max-width:140px;"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex5_s1_done">✓</button></td></tr>
               <tr><td class="set-number">2</td><td colspan="2"><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex5_s2_reps" placeholder="Wdh" style="max-width:140px;"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex5_s2_done">✓</button></td></tr>
               <tr><td class="set-number">3</td><td colspan="2"><input type="number" inputmode="numeric" class="input-field tracker-input" id="t5_ex5_s3_reps" placeholder="Wdh" style="max-width:140px;"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t5_ex5_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAG 5: OBERKÖRPER B ==================== -->
+    <section id="tag4" class="tab-content">
+      <div class="day-header">
+        <h2>Tag 5: Oberkörper B</h2>
+        <p>Schultern, Arme & Rumpfstabilität (Fokus hintere Schulter)</p>
+        <div class="ghost-legend"><span class="lg-ghost">grau = letztes Training</span><span class="lg-up">mehr</span><span class="lg-down">weniger</span></div>
+      </div>
+
+      <!-- Ex 1 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">1. Kabelzug Reverse Flyes</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Isoliert hintere Schulter. Hinten 1s halten, 3s langsam vorlassen. Macht die Arme von der Seite und hinten schön schlank.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex1_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex1_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex1_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex1_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex1_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex1_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex1_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex1_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex1_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 2 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">2. Seitheben sitzend mit KH</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-1</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Aufrecht auf Bank sitzen. Leichtes Gewicht wählen! 3s langsam absenken. Nacken bewusst entspannt lassen.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex2_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex2_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex2_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex2_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex2_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex2_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex2_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex2_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex2_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 3 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">3. Enges Kabelzug-Rudern (nur Retraktion)</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-0-1-2</span>
+            <span class="badge badge-pause">Pause: 75s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Aufrechter Sitz. Fokus rein auf das Zusammenziehen der Schulterblätter hinten (2s halten). Keinesfalls mit dem Rumpf schaukeln!
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex3_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex3_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex3_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex3_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex3_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex3_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex3_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex3_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex3_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 4 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">4. Trizeps Überkopfdrücken am Kabel</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 12–15 Wdh.</span>
+            <span class="badge badge-tut">TUT: 3-1-1-0</span>
+            <span class="badge badge-pause">Pause: 60s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Schrittstellung für stabilen Rumpf. 3s tief in die Dehnung gehen, 1s halten, dann strecken.
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex4_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex4_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex4_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex4_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex4_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex4_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex4_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex4_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex4_s3_done">✓</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ex 5 -->
+      <div class="exercise-card">
+        <div class="exercise-header">
+          <div class="exercise-name">5. Pallof Press am Kabelzug</div>
+          <div class="exercise-badges">
+            <span class="badge">3 Sätze × 10–12 pro Seite</span>
+            <span class="badge badge-tut">TUT: 2-2-2-0</span>
+            <span class="badge badge-pause">Pause: 45s</span>
+          </div>
+        </div>
+        <div class="exercise-body">
+          <details class="exercise-accordion">
+            <summary>ℹ️ Ausführung & Bandscheibenschutz</summary>
+            <div class="exercise-notes">
+              Seitlich zum Kabelzug stehen, Griff vor die Brust halten und nach vorn schieben. 2s vorne gegen das Verdrehen stabil halten!
+            </div>
+          </details>
+          <table class="sets-table">
+            <thead><tr><th>Satz</th><th>kg</th><th>Wdh</th><th>✓</th></tr></thead>
+            <tbody>
+              <tr><td class="set-number">1</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex5_s1_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex5_s1_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex5_s1_done">✓</button></td></tr>
+              <tr><td class="set-number">2</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex5_s2_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex5_s2_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex5_s2_done">✓</button></td></tr>
+              <tr><td class="set-number">3</td><td><input type="number" step="0.5" inputmode="decimal" class="input-field tracker-input" id="t4_ex5_s3_kg" placeholder="kg"></td><td><input type="number" inputmode="numeric" class="input-field tracker-input" id="t4_ex5_s3_reps" placeholder="Wdh"></td><td class="check-cell"><button type="button" class="check-btn tracker-check" id="t4_ex5_s3_done">✓</button></td></tr>
             </tbody>
           </table>
         </div>
@@ -2679,7 +2696,7 @@
         queueWrite(input.id, input.value);
         scheduleRender();
       });
-      input.addEventListener('change', () => checkPR(ex));
+      input.addEventListener('change', () => { checkPR(ex); autoComplete(input); });
       input.addEventListener('blur', flush);
     });
 
@@ -2708,21 +2725,43 @@
       try { localStorage.setItem('wt_autoRest', autoToggle.checked ? 'on' : 'off'); } catch (e) { /* ignore */ }
     });
 
-    checks.forEach(btn => {
+    // Satz abhaken (per Tipp oder automatisch, sobald kg + Wdh. eingetragen sind)
+    function setDone(btn, completed) {
       const ex = exByKey[btn.id.match(/^(t\d+_ex\d+)/)[1]];
+      btn.classList.toggle('completed', completed);
+      if (completed) fillRowFromSuggestions(btn.id.replace(/_done$/, ''));
+      queueWrite(btn.id, completed);
+      flush();
+      scheduleRender();
+      if (completed) {
+        try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) { /* ignore */ }
+        checkPR(ex);
+        if (autoToggle.checked && typeof window.setTimer === 'function') window.setTimer(ex.pause);
+      }
+    }
+
+    checks.forEach(btn => {
       btn.addEventListener('click', () => {
         if (!stateRef) return;
-        const completed = btn.classList.toggle('completed');
-        if (completed) fillRowFromSuggestions(btn.id.replace(/_done$/, ''));
-        queueWrite(btn.id, completed);
-        flush();
-        scheduleRender();
-        if (completed) {
-          checkPR(ex);
-          if (autoToggle.checked && typeof window.setTimer === 'function') window.setTimer(ex.pause);
-        }
+        // Gerade automatisch abgehakt (Feld wurde durch Tipp auf den Haken verlassen)? Dann nicht wieder aufheben.
+        if (Date.now() - (+btn.dataset.autoAt || 0) < 1000) return;
+        setDone(btn, !btn.classList.contains('completed'));
       });
     });
+
+    function autoComplete(input) {
+      const m = input.id.match(/^((t\d+_ex\d+)_s\d+)_(kg|reps)$/);
+      if (!m || !stateRef) return;
+      const ex = exByKey[m[2]];
+      const btn = $(`${m[1]}_done`);
+      if (!btn || btn.classList.contains('completed')) return;
+      const reps = num($(`${m[1]}_reps`)?.value);
+      const kg = num($(`${m[1]}_kg`)?.value);
+      if (reps > 0 && (!ex.hasKg || kg > 0)) {
+        btn.dataset.autoAt = Date.now();
+        setDone(btn, true);
+      }
+    }
 
     // Notizen
     async function flushNotes() {
